@@ -1,6 +1,7 @@
 # Universal Toolkit - LM Studio Plugin
 
 ***This tool is a work in progress. Some tools may not function. There is a known JSON breaking issue that I am aware and trying to fix.***
+
 A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, and content fetching capabilities.
 
 ## 🚨 Prerequisites & Required Software (READ FIRST!)
