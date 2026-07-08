@@ -106,7 +106,7 @@ npm run build
 
 ## 📥 Installing This Plugin in Modern LM Studio  
 
-Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! Here is how to connect this toolset properly:
+Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! There are two ways to install the tool plugin. Here is the first way on how to connect this toolset properly:
 
 1. Open your `mcp.json` config file from the **"Program"** tab → click "Install" → select "Edit mcp.json". This opens an in-app editor for LM Studio's MCP server definitions  
 2. Add a new entry under `"mcpServers"` pointing to our compiled plugin script (`dist/index.js`) like this: 
@@ -124,6 +124,20 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
 
 > ⚠️ **Windows Users:** Replace `/path/to/node` with your actual Node executable path (e.g., `C:\Program Files\nodejs\node.exe`)! 
 
+---
+
+## Second Method (Preferred Method)
+
+1. In the tool plugin directory, open up terminal. On Windows, prese the Window's Key ⊞ + X. A menu will open up and choose the Powershell. 
+Navigate to the tool plugin directory. 
+2. Now enter the command "npm insall" to install the dependencies. Then type the command "npm run build." This should build the javascript (.js) 3. folder called dist. If you ever need to do a clean install, use the command "npm run clean" 
+4. Then run the command "lms dev --install." You can run "lms dev" but pressing ctrl+c wills order a stop and your plugin will disappear from the LM Studio's Integration panel on the right.
+
+```
+npm install
+npm run build
+lms dev --install
+```
 ---
 
 ## Usage Examples  
