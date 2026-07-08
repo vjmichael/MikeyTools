@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0",
+  "description": "LM Studio Plugin Toolkit Configuration - Scratch Pad Architecture",
+  "scratch_pad": {
+    "enabled": true,
+    "path": "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\.scratch-pad.txt",
+    "description": "Central scratch file for complex strings that fail JSON parameter escaping",
+    "usage": "Write complex patterns here via write_file, then process via run_command"
+  },
+  "fallback_chain": {
+    "description": "Ordered fallback sequence for tools that fail due to escaping issues",
+    "steps": [
+      {
+        "order": 1,
+        "method": "direct_tool_call",
+        "description": "Try the tool call directly with simple parameters"
+      },
+      {
+        "order": 2,
+        "method": "scratch_pad",
+        "description": "Write complex content to scratch_pad.path, then use run_command to process"
+      },
+      {
+        "order": 3,
+        "method": "run_command",
+        "description": "Execute native command (ripgrep, python, node) via run_command"
+      }
+    ]
+  },
+  "tool_fallback_map": {
+    "grep": {
+      "primary": "grep",
+      "fallback": "run_command with rg -f <scratch_path>",
+      "notes": "Complex regex patterns fail in grep tool parameters"
+    },
+    "search_directory": {
+      "primary": "search_directory",
+      "fallback": "run_command with dir /s /b <pattern>",
+      "notes": "Large result sets may need pagination"
+    },
+    "edit_file": {
+      "primary": "edit_file",
+      "fallback": "write modified content to scratch, then run_command with powershell -c",
+      "notes": "Parameter names must match schema exactly (e.g., start_line not line)"
+    },
+    "cat_multiple": {
+      "primary": "cat_multiple",
+      "fallback": "cat each file individually in sequence",
+      "notes": "cat_multiple has known issues with JSON parsing of non-JSON files"
+    },
+    "create_file": {
+      "primary": "create_file",
+      "fallback": "write_file with manual JSON formatting",
+      "notes": "JSON format creates empty {} - use write_file instead for complex JSON"
+    }
+  },
+  "discovery": {
+    "config_file": ".toolkit-config.json",
+    "env_var_override": "TOOLKIT_SCRATCH_PAD",
+    "documentation": "See .toolkit-scratch-protocol.md for usage examples"
+  }
+}

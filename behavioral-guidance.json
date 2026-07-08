@@ -1,0 +1,104 @@
+{
+  "toolSelectionRules": [
+    {
+      "tier": 1,
+      "preferenceOrder": ["write_file", "edit_file", "create_file", "read_file", "list_directory", "grep", "patch"],
+      "avoidUnlessNecessary": ["run_command", "execute_code"],
+      "reason": "Tier 1 tools are pure Node.js, work everywhere, and are safest. Always prefer these first."
+    },
+    {
+      "tier": 2,
+      "preferenceOrder": ["web_search", "fetch_web_content", "git_ops", "git_read", "validate", "memory", "task_state"],
+      "avoidUnlessNecessary": ["run_command"],
+      "reason": "Tier 2 tools have common npm dependencies. Use if Tier 1 tools don't meet your needs."
+    },
+    {
+      "tier": 3,
+      "preferenceOrder": ["sandbox", "exec", "terminal", "browser"],
+      "avoidUnlessNecessary": ["run_command"],
+      "reason": "Tier 3 tools require external installations (Docker, WSL2, Chromium). Check prerequisites first."
+    },
+    {
+      "tier": 4,
+      "preferenceOrder": ["index", "image_desc", "vision", "video", "audio", "drive_ops", "github_ops", "docker_ops", "code_intel", "background"],
+      "avoidUnlessNecessary": [],
+      "reason": "Tier 4 tools have heavy dependencies (100MB+ models, ffmpeg, whisper.cpp, OAuth2). Only use when explicitly needed."
+    }
+  ],
+  "behavioralGuidance": [
+    "Always prefer simpler toolkit tools (Tier 1) over run_command for file operations.",
+    "Never write complex inline PowerShell arrays through run_command — they break escaping and corrupt files.",
+    "Use run_command only when sandboxing, Docker/WSL isolation is required, or external binaries must run natively.",
+    "For text-heavy operations (markdown, JSON, code), always use write_file or edit_file — never try to pipe content through run_command.",
+    "Check tool prerequisites before using Tier 3+ tools to avoid silent failures.",
+    "If a tool returns success: false, always check the 'hint' field for installation or troubleshooting instructions.",
+    "For semantic search, build the index (index) first, then query it (index_query) — don't query before indexing.",
+    "For browser automation, prefer fetch_web_content for simple pages, browser only for JavaScript-rendered content.",
+    "For code execution, prefer sandbox over exec for untrusted code — sandbox provides isolation.",
+    "Always use dryRun mode (write_file, edit_file, read_file) to preview changes before applying them.",
+    "When using execute_code with PowerShell, avoid these patterns that break escaping: (1) Here-strings (@'...') require multi-line input, (2) Regex character classes like ['\"] get parsed as separate arguments, (3) Single quotes inside single-quoted strings need doubling (''). Use the powershell_utils.ts module for safe patterns.",
+    "When WSL output appears garbled with null bytes between characters (e.g., 'W\u0000i\u0000n\u0000d\u0000o\u0000w\u0000s\u0000'), WSL is not actually installed or the bash command is falling back to a WSL stub. Check WSL availability first using wsl_utils.ts before attempting bash commands.",
+    "For Windows file operations, prefer 'cmd' shell over 'powershell' shell when running npm/npx commands — the npm.ps1 wrapper has known $LASTEXITCODE variable issues on some Windows configurations.",
+    "For build commands, execute .cmd files directly (e.g., .\\node_modules\\.bin\\tsc.cmd) rather than through npm/npx to avoid PowerShell shim issues.",
+    "Use the grep tool instead of Select-String for pattern searching — Select-String regex patterns get corrupted when passed through JSON to shell.",
+    "For cross-platform compatibility, prefer PowerShell-native commands (Get-ChildItem, Get-Content, etc.) over bash/WSL commands when WSL availability is uncertain.",
+    "When searching for imports or patterns, use grep tool with appropriate flags instead of trying to build complex regex patterns through execute_code.",
+    "For file operations that require path manipulation, use write_file/create_file tools rather than trying to construct file paths through shell commands."
+  ],
+  "powerShellEscaping": {
+    "knownIssues": [
+      {
+        "pattern": "Here-strings (@'...'@)",
+        "issue": "Require the closing @' on its own line with no trailing whitespace. execute_code passes code as a single command string, breaking multi-line syntax.",
+        "workaround": "Use write_file tool for file content, or use Set-Content with -Value parameter"
+      },
+      {
+        "pattern": "Regex character classes (['\"])",
+        "issue": "The ] character is interpreted as a command-line token by the tool's argument parser, causing 'positional parameter cannot be found' errors.",
+        "workaround": "Use -SimpleMatch flag with Select-String, or use grep tool instead"
+      },
+      {
+        "pattern": "Single quotes inside single-quoted strings",
+        "issue": "PowerShell requires doubling single quotes ('') to represent a literal single quote inside single-quoted strings.",
+        "workaround": "Use escapeForSingleQuote() from powershell_utils.ts"
+      },
+      {
+        "pattern": "Dollar signs ($) in double-quoted strings",
+        "issue": "PowerShell interprets $ as variable expansion in double-quoted strings, corrupting the intended output.",
+        "workaround": "Escape $ as $$ in double-quoted strings, or use single-quoted strings"
+      },
+      {
+        "pattern": "Backticks (`) in double-quoted strings",
+        "issue": "PowerShell uses backticks as escape characters in double-quoted strings.",
+        "workaround": "Escape backtick as `` in double-quoted strings"
+      }
+    ],
+    "safePatterns": [
+      "Use write_file/edit_file for all file content operations",
+      "Use grep tool for pattern searching instead of Select-String",
+      "Use cmd shell for npm/npx commands to avoid $LASTEXITCODE issues",
+      "Use execute_code with shell='cmd' for Windows path operations",
+      "Use powershell_utils.ts helper functions for complex escaping scenarios"
+    ]
+  },
+  "wslHandling": {
+    "detection": {
+      "method": "Always check WSL availability before attempting bash commands",
+      "command": "Get-Command wsl -ErrorAction SilentlyContinue (PowerShell)",
+      "fallback": "Use PowerShell-native commands (Get-ChildItem, Get-Content) when WSL is unavailable"
+    },
+    "garbledOutput": {
+      "symptom": "Output with null bytes between characters (e.g., 'W\\u0000i\\u0000n\\u0000d\\u0000o\\u0000w\\u0000s\\u0000')",
+      "cause": "WSL not installed — bash command falls back to WSL stub which outputs UTF-16LE",
+      "detection": "Check for 'Windows Subsystem for Linux' in output or null bytes in output",
+      "fix": "Use PowerShell or cmd shell instead of bash"
+    },
+    "bestPractices": [
+      "Check WSL availability before using bash shell in execute_code",
+      "Prefer PowerShell or cmd shell on Windows when WSL is uncertain",
+      "Use wsl_utils.ts for detection and encoding utilities",
+      "Never assume bash commands will work on Windows without WSL verification"
+    ]
+  },
+  "version": "3.0.0"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "universal-toolkit",
+  "version": "2.3.0",
+  "type": "plugin",
+  "description": "A comprehensive toolkit for file operations, web search, content fetching, code execution, patching, persistent memory, semantic search, schema validation, and OCR for LM Studio. Features 53 tools including advanced directory search, web search (DuckDuckGo/Google/Bing), file creation (txt, md, json, csv, html, docx, pdf), file reading, code execution sandbox, unified diff patching, SQLite-backed persistent memory, local semantic search, JSON Schema validation, Tesseract OCR, audio transcription, image description, video analysis, GitHub integration, code intelligence, and task state management.",
+  "entry": "dist/index.js",
+  "runner": "node",
+  "owner": "mikeytools",
+  "author": "Universal Toolkit",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/universal-toolkit-lmstudio"
+  },
+  "engines": {
+    "lmstudio": ">=0.2.0"
+  }
+}

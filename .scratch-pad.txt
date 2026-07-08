@@ -1,0 +1,5 @@
+export function
+function\s+\w+\s*\(
+interface\s+\w+\s*{
+const\s+(\w+)\s*=\s*["']
+C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\src\\tools\\.*\.ts

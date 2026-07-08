@@ -1,0 +1,147 @@
+# Universal Toolkit - Behavioral Rules for AI Models
+
+## Tool Selection Priority (Always Follow)
+
+### Tier 1: Simplest Tools (Always Try First - No External Dependencies)
+Always start with these tools - they work everywhere:
+1. **`write_file`** - Overwrite entire files (safest, most reliable)
+2. **`edit_file`** - Targeted changes (replace, insert, delete)
+3. **`create_file`** - Create new files in 7 formats (txt, md, json, csv, html, docx, pdf)
+4. **`read_file`** - Read text/code files with smart encoding detection
+5. **`list_directory`** - Browse directories recursively
+6. **`grep`** - Search file contents with regex support
+7. **`patch`** - Apply unified diff patches safely
+
+### Tier 2: Moderate Tools (Common npm Dependencies)
+If Tier 1 doesn't meet your needs, try:
+8. **`web_search`** - Search web (DuckDuckGo/Google/Bing)
+9. **`fetch_web_content`** - Fetch clean text from URLs
+10. **`git_ops`** - Git status, diff, log, blame
+11. **`git_read`** - Read files from specific Git revisions
+12. **`validate`** - JSON/YAML schema validation
+13. **`memory`** - Persistent key-value storage (SQLite-backed)
+14. **`task_state`** - Save/load work state, break flags
+
+### Tier 3: Complex Tools (Require External Installation)
+Check prerequisites before using:
+15. **`sandbox`** - Requires Docker **OR** WSL2
+16. **`exec`** - Requires Python/Node/bash CLI
+17. **`terminal`** - Requires PowerShell 7+ (Windows) or bash
+18. **`browser`** - Requires Puppeteer/Chromium
+
+### Tier 4: Specialized Tools (Heavy Dependencies)
+Only use when explicitly needed:
+19. **`index`** - Semantic search (downloads ~100MB model)
+20. **`image_desc`** - Image understanding (downloads ~100MB model)
+21. **`vision`** - OCR (downloads ~20MB Tesseract data files)
+22. **`video`** - Video analysis (requires ffmpeg + Python)
+23. **`audio`** - Audio transcription (requires whisper.cpp)
+24. **`drive_ops`** - Google Drive (requires OAuth2 token.json)
+25. **`github_ops`** - GitHub API (requires git + auth)
+26. **`docker_ops`** - Docker management (requires Docker Desktop)
+27. **`code_intel`** - Code navigation (tree-sitter, currently disabled)
+28. **`background`** - Long-running background tasks
+
+---
+
+## Critical Rules
+
+### File Editing Rules
+- **Always use `write_file`** for overwriting entire files
+- **Always use `edit_file`** for targeted changes (replace, insert, delete)
+- **Never try to pipe large text content through `run_command`** — it WILL break due to JSON escaping issues
+- Complex PowerShell/Bash strings break escaping through JSON tool calls and corrupt files
+
+### When to Use `run_command`
+Use `run_command` **ONLY** for:
+- Sandboxing (Docker/WSL isolation)
+- Running external binaries that have no toolkit equivalent
+- Operations that genuinely require a native shell
+
+### When NOT to Use `run_command`
+- **NEVER** for text-heavy operations (markdown, JSON, code)
+- **NEVER** for file editing (use `write_file` or `edit_file`)
+- **NEVER** for directory listing (use `list_directory`)
+- **NEVER** for file searching (use `grep` or `search_directory`)
+
+---
+
+## LM Studio Plugin Installation
+
+- Modern LM Studio uses **MCP (Model Context Protocol)** via `mcp.json` config
+- **No GUI "Load Plugin" button** in Settings → Developer — that path is outdated
+- Configure tools via the **"Program" tab** → Install → Edit mcp.json
+
+---
+
+## Tool Selection Rules (Structured)
+
+```json
+{
+  "toolSelectionRules": [
+    {
+      "tier": 1,
+      "preferenceOrder": ["write_file", "edit_file", "create_file", "read_file", "list_directory", "grep", "patch"],
+      "avoidUnlessNecessary": ["run_command", "execute_code"],
+      "reason": "Tier 1 tools are pure Node.js, work everywhere, and are safest. Always prefer these first."
+    },
+    {
+      "tier": 2,
+      "preferenceOrder": ["web_search", "fetch_web_content", "git_ops", "git_read", "validate", "memory", "task_state"],
+      "avoidUnlessNecessary": ["run_command"],
+      "reason": "Tier 2 tools have common npm dependencies. Use if Tier 1 tools don't meet your needs."
+    },
+    {
+      "tier": 3,
+      "preferenceOrder": ["sandbox", "exec", "terminal", "browser"],
+      "avoidUnlessNecessary": ["run_command"],
+      "reason": "Tier 3 tools require external installations (Docker, WSL2, Chromium). Check prerequisites first."
+    },
+    {
+      "tier": 4,
+      "preferenceOrder": ["index", "image_desc", "vision", "video", "audio", "drive_ops", "github_ops", "docker_ops", "code_intel", "background"],
+      "avoidUnlessNecessary": [],
+      "reason": "Tier 4 tools have heavy dependencies (100MB+ models, ffmpeg, whisper.cpp, OAuth2). Only use when explicitly needed."
+    }
+  ],
+  "behavioralGuidance": [
+    "Always prefer simpler toolkit tools (Tier 1) over run_command for file operations.",
+    "Never write complex inline PowerShell arrays through run_command — they break escaping and corrupt files.",
+    "Use run_command only when sandboxing, Docker/WSL isolation is required, or external binaries must run natively.",
+    "For text-heavy operations (markdown, JSON, code), always use write_file or edit_file — never try to pipe content through run_command.",
+    "Check tool prerequisites before using Tier 3+ tools to avoid silent failures.",
+    "If a tool returns success: false, always check the 'hint' field for installation or troubleshooting instructions.",
+    "For semantic search, build the index (index) first, then query it (index_query) — don't query before indexing.",
+    "For browser automation, prefer fetch_web_content for simple pages, browser only for JavaScript-rendered content.",
+    "For code execution, prefer sandbox over exec for untrusted code — sandbox provides isolation.",
+    "Always use dryRun mode (write_file, edit_file, read_file) to preview changes before applying them."
+  ],
+  "version": "2.0.0"
+}
+```
+
+---
+
+## Common Pitfalls to Avoid
+
+- Don't use complex PowerShell array splicing through `run_command` for file editing
+- Don't assume `run_command` handles escaping reliably for multi-line strings
+- Don't use outdated LM Studio GUI paths for plugin loading
+- Don't use `run_command` for text-heavy operations — it WILL break
+- Don't skip prerequisite checks before using Tier 3+ tools
+
+---
+
+## Error Handling
+
+All tools return structured JSON:
+```json
+{
+  "success": true/false,
+  "error": "Error message if failed",
+  "message": "Additional context",
+  "hint": "Suggested troubleshooting steps"
+}
+```
+
+If `success` is false, check the `hint` field for installation or fix instructions.
