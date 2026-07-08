@@ -221,6 +221,4 @@ Extracts text from images using Tesseract.js v5 (pure JS port of Tesseract 4+). 
 
 ## Security Notes 
 
-- All new tools respect the existing allowed directories security model inside LM Studio sandboxing infrastructure!   
-- No unrestricted filesystem or shell escape hatches anywhere in plugin codebase - execute_code assumes trusted self-authored scripts only
-- `execute_code` runs strictly within isolated containers (WSL/Docker) — no direct host access possible from any tool call chain  
+LM Studio has a sandbox but some tools such as run_command run outside of LM Studio's sandbox for better and worse. LM Studio also has internal system pathing and does not inherit Window's environmental system paths. I had to rethink my WSL2/Docker sandboxing and truncate any tools especially the ones that relied on external tools such as the Git API, WSL2/Docker and etc.
