@@ -1,112 +1,84 @@
-# Universal Toolkit - LM Studio Plugin
+# LM Studio Plugin - Installation Guide & Dependencies
 
-***This tool is a work in progress. Some tools may not function. There is a known JSON breaking issue that I am aware and trying to fix.***
+## 🚨 Prerequisites: Required Software (READ FIRST!)
 
-A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, and content fetching capabilities.
-
-## 🚨 Prerequisites & Required Software (READ FIRST!)
-
-Before running or installing this plugin in modern LM Studio, you **must have all of the following** installed on your machine! Without these exact dependencies, features will fail silently or crash! 
+Before installing or running this plugin, you **must have all of the following** installed on your machine. Without these exact dependencies, features will fail silently or crash! 
 
 ### Core Runtime Requirements
-1.  **PowerShell 7+ (*Windows ONLY*) — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest). This plugin requires PowerShell modern module loading capabilities; legacy Windows PowerShell is NOT compatible.**
+1.  **PowerShell 7+ (Windows ONLY)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest) if not already present. This plugin requires PowerShell's modern module loading capabilities; the legacy Windows PowerShell is NOT compatible.
 
-2.  **Node.js v18+** ([Download](https://nodejs.org/) ) — Runtime environment for TypeScript compilation and npm packages! 
+2.  **Node.js v18+** ([Download](https://nodejs.org/)) — The TypeScript compiler and runtime environment. npm comes bundled with Node.js automatically! 
 
 ### Sandbox / Execution Environment (Choose ONE)
-3a. **WSL *(Windows Subsystem for Linux)* REQUIRED fallback**: Run `wsl --install` in PowerShell as Administrator, then restart your machine!
+3a. **WSL (Windows Subsystem for Linux)** *(REQUIRED fallback on Windows)*: 
+   - Open PowerShell 7+ as Administrator, then run: `wsl --install`  
+   - Restart your machine after installation completes
 
-3b. Docker Desktop *Optional but recommended alternative to WSL*: Download from [docker.com](https://www.docker.com/) and enable 'WSL 2 backend' if you have it installed too! 
+3b. **Docker Desktop** *(Optional but recommended alternative to WSL)*:
+   - Download from [docker.com/products/docker-desktop](https://www.docker.com/) and install via their installer 
+   - Enable "WSL 2 backend" in Docker settings if you also have WSL installed 
+
+> ⚠️ **Note:** On Linux/macOS, standard bash/zsh terminals work natively without extra sandboxing requirements.
 
 ### Feature-Specific Dependencies
-4.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by multiple features: OCR, semantic search (`index_build`), schema validation (`validate_schema`) etc! Install via official installer with Add to PATH checked!
+4.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by multiple features: OCR (`read_image`), semantic search (`index_build`), schema validation (`validate_schema`), and PDF processing libraries. Install via official installer with "Add to PATH" checked!
 
-5.  Headless Chromium / Chrome for Testing *Required* — Needed by browser automation capabilities (image search + web content fetching). After downloading from [developer.chrome.com](https://developer.chrome.com/blog/chrome-for-testing/) set environment variable `PUPPETEER_EXECUTABLE_PATH` pointing at your extracted binary path!
-
-> ### Project Dependencies (`package.json`)
-> This plugin relies heavily on external TypeScript packages (like `cheerio`, `docx`). **You do not need to install these manually!** By running the setup commands below in terminal, npm will automatically download and configure every necessary dependency from our project package.json.
+5.  **Headless Chromium / Chrome for Testing** ([Download](https://developer.chrome.com/blog/chrome-for-testing/)) — Required by Puppeteer/Playwright browser automation features (image search, web content fetching). After downloading:
+   - Extract the zip file  
+   - Set environment variable `PUPPETEER_EXECUTABLE_PATH` to point at your extracted binary path!
 
 ---
 
-## Features 
+## 📦 Project Dependencies (`package.json`) 
 
-### 🔍 Advanced Directory Search
-- Glob pattern matching (`*.py`, `config*`, etc.) 
-- Case-insensitive search  
-- Filter by file extension, size, and date
-- Search within file contents (grep-style)
-- Sort by name, size, date, or type
-- Recursive or single-directory mode
+This plugin relies heavily on external TypeScript packages (like `cheerio`, `docx`, etc.). **You do not need to install these manually.** By running the installation commands below, npm will automatically download and configure every necessary dependency from our project's package.json!
 
-### 🌐 Web Search
-- News search
-- Image search with URLs
-- Configurable results count and region
+---
 
-### 📄 File Creation 
-- **TXT** - Plain text files  
-- **MD** - Markdown documents
-- **JSON** - Structured data files
-- **CSV** - Spreadsheets
-- **HTML** - Styled web pages
-- **DOCX** - Word documents (with headings and paragraphs)
-- **PDF** - PDF documents (with styled titles)
+## 🪟 Windows Installation Steps (PowerShell 7+)
 
-### 📖 File Reading 
-- **TXT/MD** - Plain text with encoding detection  
-- **JSON** - Pretty-printed with size info
-- **CSV** - Formatted table view with column alignment  
-- **HTML** - Extracts clean text, titles, and links
-- **DOCX** - Extracts text, paragraphs, and metadata 
-- **PDF** - Extracts text from all pages
-
---- 
-
-## Installation
-
-### Prerequisites
-- Node.js 18+ ([Download](https://nodejs.org/))  
-- npm (comes with Node.js)  
-
-### Verify Installation
-```bash
-node --version   # Should be v18.0.0 or higher 
-npm --version    # Should be 9.0.0 or higher   
-```
-
-### Cross-Platform Setup 
-
-#### Windows 10/11 (PowerShell 7+)  
 ```powershell
-# Navigate to plugin directory 
-cd "c:\Users\UserMN4312\toolkit/lm-studio-plugin"  
+# 1. Navigate to plugin directory 
+cd "c:\Users\UserMN4312\toolkit/lm-studio-plugin" 
 
-# Install dependencies automatically via package.json: 
-npm install --legacy-peer-deps
-
-# Build TypeScript into dist/index.js for LM Studio consumption:   
-npm run build  
-```
-
-#### Linux (Ubuntu/Debian - bash)
-```bash
-cd /path/to/toolkit/lm-studio-plugin 
-
+# 2. Install all Node.js dependencies automatically:
 npm install --legacy-peer-deps  
 
-npm run build 
+# 3. Build TypeScript into a format LM Studio can read (dist/index.js):
+npm run build
+
+# 4. Verify dist folder was created successfully:
+dir dist 
 ```
 
-### Troubleshooting
-- If `npm install` fails with peer dependency errors: `npm install --legacy-peer-deps`  
-- If Node.js is not recognized on Windows, restart PowerShell or run: `refreshenv`
-- For Python dependencies after installing everything else above: `pip install -r requirements.txt` (see below)
+**Troubleshooting Windows Issues:**  
+- If `node` or `npm` is not recognized, restart PowerShell and try again! 
+- For Python dependencies after installing everything else: `pip install -r requirements.txt` (see below)
+- To verify WSL installation works correctly in your environment: run `wsl --status`
 
---- 
+---
 
-## 📥 Installing This Plugin in Modern LM Studio  
+## 🐧 Linux Installation Steps
 
-Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! There are two ways to install the tool plugin. Here is the first way on how to connect this toolset properly:
+```bash  
+# 1. Navigate to plugin directory on your machine: 
+cd /path/to/toolkit/lm-studio-plugin 
+
+# 2. Install all Node.js dependencies automatically from package.json:
+npm install --legacy-peer-deps  
+
+# 3. Build TypeScript into a format LM Studio can read (dist/index.js): 
+npm run build
+
+# 4. Verify dist folder was created successfully:  
+ls -la dist   
+```
+
+---
+
+## 📥 Installing This Plugin in Modern LM Studio 
+
+Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! Here's how to connect this toolset properly:  
 
 1. Open your `mcp.json` config file from the **"Program"** tab → click "Install" → select "Edit mcp.json". This opens an in-app editor for LM Studio's MCP server definitions  
 2. Add a new entry under `"mcpServers"` pointing to our compiled plugin script (`dist/index.js`) like this: 
@@ -115,7 +87,7 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
 { 
   "mcpServers": {    
     "lm-studio-plugin": {      
-      "command": "/path/to/node",   # or full path on Windows! e.g., C:\Program Files\nodejs\node.exe       
+      "command": "/path/to/node",  # or full path on Windows! e.g., C:\Program Files\nodejs\node.exe       
       "args": ["C:/Users/UserMN4312/toolkit/lm-studio-plugin/dist/index.js"]
     }  
   } 
@@ -126,101 +98,23 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
 
 ---
 
-## Second Method (Preferred Method)
+## 🐍 Optional: Advanced Feature Python Dependencies  
 
-1. In the tool plugin directory, open up terminal. On Windows, prese the Window's Key ⊞ + X. A menu will open up and choose the Powershell. 
-Navigate to the tool plugin directory. 
-2. Now enter the command "npm insall" to install the dependencies. Then type the command "npm run build." This should build the javascript (.js) 3. folder called dist. If you ever need to do a clean install, use the command "npm run clean" 
-4. Then run the command "lms dev --install." You can run "lms dev" but pressing ctrl+c wills order a stop and your plugin will disappear from the LM Studio's Integration panel on the right.
+If you want to use features like OCR, semantic search, or schema validation beyond basic file/web operations, install these after installing the core dependencies above:
+```bash  
+pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract beautifulsoup4 lxml duckduckgo-search rich googlesearch-python bingsearch requests node-fetch pdf-parse docx jszip cheerio csv-stringify ddgs pdfkit 
+```
 
-```
-npm install
-npm run build
-lms dev --install
-```
 ---
 
-## Usage Examples  
+## Available Tools 
 
-### Web Search 
-```typescript
-// Web search with DuckDuckGo
-web_search({  
-  query: "python tutorial",  
-  engine: "duckduckgo",   
-  max_results: 10,    
-  search_type: "web",
-  region: "us-en",     
-  safesearch: "moderate", 
-  language: "en"
-})
-
-// News search
-web_search({ query: "AI news", search_type: "news"}) 
-
-// Image search  
-web_search({query:"cats",search_type:"images"} )
-```
-
-### Fetch Web Content 
-```typescript
-fetch_web_content({url:"https://example.com",max_length:10000})   
-```
-
----  
-
-## New Tool Definitions (Advanced Features)  
-
-These advanced tools require additional dependencies listed in the Prerequisites section above! 
-
-### `execute_code`  
-Execute code in Python, Bash, or Node.js with timeout and output capture. Requires WSL/Docker sandbox environment to function safely on Windows hosts!
-
-**Parameters:**
-| Parameter | Type | Required | Default | Description | 
-|-----------|------|----------|---------|-------------|
-| language | string | Yes | - | Language: python, bash, powershell, node  
-| code | string | No | - | Inline code (mutually exclusive with file_path)   
-| timeout_seconds | number | No | 15 | Timeout in seconds (max: 120)| 
-| cwd | string | No | - | Working directory inside sandboxed container!
-
-**Example:**
-```typescript  
-execute_code({language:"python",code:"print('Hello, World!')",timeout_seconds:30})   
-```
-
----  
-
-### `memory_set` / `memory_get` / `memory_list` / `delete` 
-Persistent sql.js-backed key-value store & log management. **No extra dependencies needed** — runs entirely in pure JavaScript inside LM Studio environment out of the box! Supports WAL mode for better concurrency when multiple tools access memory simultaneously and persists data exactly like SQLite (full ACID compliance).
-
----  
-
-### Semantic Search Tools (`index_build`, `index_query`, `update`)
-Index directories semantically using sentence-transformers. Requires Python + numpy/sentence_transformers installed via pip from our feature-specific dependencies list above! 
-
-```typescript  
-// Build index over source code directory: 
-await index_build({directory:"./backend",extensions:"py,md,index_path":"./data/index"})
-
-// Query for similar chunks later on user requests matching query text against indexed content
-index_query(query="race condition database writes",top_k=5)   
-```  
-
---- 
-
-### OCR & Image Processing (`read_image`)  
-Extracts text from images using Tesseract.js v5 (pure JS port of Tesseract 4+). No native binaries or system installs required! Just install Pillow + pytesseract via pip as shown in feature dependencies section above.
-
-**Returns:**
-```json 
-{ "text":"extracted OCR result...", width:1920, height:1080, format:"png" }  
-```  
-
---- 
-
-## Security Notes 
-
-- All new tools respect the existing allowed directories security model inside LM Studio sandboxing infrastructure!   
-- No unrestricted filesystem or shell escape hatches anywhere in plugin codebase - execute_code assumes trusted self-authored scripts only
-- `execute_code` runs strictly within isolated containers (WSL/Docker) — no direct host access possible from any tool call chain  
+| Tool | Description | Dependencies Required |
+|------|-------------|------------------------|  
+| `web_search` / `fetch_web_content` | Search web/news/images via DuckDuckGo + fetch URLs | None (built-in) |  
+| `create_file` / `read_file` | Create/read txt/md/json/csv/html/docx/pdf files | Node.js runtime only |
+| `search_directory` | Advanced file/folder search with filters | None (built-in) 
+| `execute_code` | Execute Python/Bash/Node code safely in sandboxed environment | WSL or Docker required!
+| `memory_set/get/list/delete/log_append/tail` | Persistent sql.js-backed key-value store & log management | Pure JS — no extra deps needed!  
+| `index_build/query/update` | Semantic search indexing over directories using sentence transformers | Python + numpy/sentence-transformers installed via pip above 
+| `validate_schema` / `read_image` (OCR) | JSON/YAML validation against schemas and Tesseract-based image text extraction | Pillow, pytesseract, jsonschema packages from pip list above!
