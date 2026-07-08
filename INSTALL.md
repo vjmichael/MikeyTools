@@ -130,10 +130,11 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
 
 In the tool plugin directory, open up terminal. On Windows, prese the Window's Key ⊞ + X. A menu will open up and choose the Powershell. Navigate to the tool plugin directory. Now enter the command "npm insall" to install the dependencies. Then type the command "npm run build." This should build the javascript (.js) folder called dist. If you ever need to do a clean install, use the command "npm run clean" Then run the command "lms dev --install." You can run "lms dev" but pressing ctrl+c wills order a stop and your plugin will disappear form the Integration panel on the right.
 
+```
 npm install
 npm run build
 lms dev --install
-
+```
 ---
 
 ## Usage Examples  
