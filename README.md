@@ -1,5 +1,7 @@
 # Mike's Multi-Tool Kit (mikeystoolkit) - LM Studio Plugin
 
+### This is a WIP. Some tools may not work, some tools may kinda work. The vision tools will not work except for OCR but if your model has native vision support, you do not need the vision tools. Sometimes there might be a JSON output that triggers a stop fault. I have tried a front end and back end protection.  ###
+
 A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence.
 
 ## License
