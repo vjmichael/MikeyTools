@@ -21,7 +21,7 @@ lms dev --install
 | `read_file` | `read_file.ts` | Read text/code files with encoding detection |
 | `write_file` | `write_file.ts` | Create/overwrite files with dry-run support |
 | `edit_file` | `edit_file.ts` | Apply patch operations (replace/insert/delete) |
-| `create_file` | `fileops.ts` | Create files in multiple formats (txt, md, json, csv, html, docx, pdf) |
+| `create_file` | `fileops.ts` | Create files. AI determines appropriate file type. Special formats (txt, md, json, csv, html, docx, pdf) get formatted; others written as-is |
 | `cat` | `fileops.ts` | Universal file reader (text, binary, documents) |
 | `cat_multiple` | `fileops.ts` | Read multiple files simultaneously |
 | `delete_lines_in_file` | `edit_file.ts` | Delete specific line ranges |

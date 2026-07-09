@@ -90,7 +90,7 @@ function detectLanguageFromExtension(file_path: string): string | null {
 import * as path from 'path';
 import * as fs from 'fs';
 import { truncateOutput } from './truncator';
-import { runJsSandboxed, runPythonSandboxed, runBashNotSupported } from './sandbox';
+import { runJavaScriptDirect, runPythonSandboxed, runBashNotSupported } from './sandbox';
 
 interface ExecuteResult {
   stdout: string;
@@ -263,7 +263,7 @@ export async function executeCode(
         return { stdout: '', stderr: `Error reading file: ${err.message}`, exit_code: -1, timed_out: false, duration_ms: Date.now() - startTime };
       }
     }
-    const result = await runJsSandboxed({ code: codeToRun || '', timeoutMs: timeout_seconds * 1000 });
+    const result = await runJavaScriptDirect(codeToRun || '');
     return { stdout: truncateOutput(result.stdout), stderr: truncateOutput(result.stderr), exit_code: result.exit_code, timed_out: result.timed_out, duration_ms: result.duration_ms };
   }
   

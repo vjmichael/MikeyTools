@@ -6,6 +6,9 @@
  * 
  * Uses tesseract.js (pure JavaScript) instead of node-tesseract-ocr
  * which had an unsfixable OS Command Injection vulnerability (GHSA-8j44-735h-w4w2).
+ * 
+ * NOTE: BLIP2 image captioning has been deprecated and removed (2026-07-09).
+ * Image description now uses the loaded LM Studio model (e.g., Qwen2.5-VL) via vision_api.ts.
  */
 
 import * as fs from 'fs';
@@ -87,41 +90,21 @@ export async function readImage(
 
 /**
  * Image Captioning Tool using BLIP-2
- * Downloads weights to local cache to bypass sandbox restrictions
+ * @deprecated BLIP2 has been deprecated and removed (2026-07-09).
+ * Image description now uses the loaded LM Studio model (e.g., Qwen2.5-VL) via vision_api.ts.
  */
 export async function describeImage(file_path: string): Promise<string> {
-  const { pipeline } = await import('@xenova/transformers');
-  
-  // Point directly to your downloaded BLIP-2 weights
-  const localCache = path.join(__dirname, '..', 'blip2-opt-2.7b');
-  
-  const generator = await pipeline('image-to-text', 'Xenova/blip2-opt-2.7b', {
-    cache_dir: localCache,
-    quantized: true
-  }) as any;
-  
-  const result = await generator(file_path);
-  return (result as any)[0].generated_text;
+  return '[DEPRECATED] BLIP2 image captioning has been removed. Use describe_image tool which calls the loaded LM Studio model (e.g., Qwen2.5-VL).';
 }
 
 /**
  * Visual Question Answering (VQA) Tool using BLIP-2
- * Answers specific questions about an image
+ * @deprecated BLIP2 has been deprecated and removed (2026-07-09).
+ * VQA now uses the loaded LM Studio model (e.g., Qwen2.5-VL) via vision_api.ts.
  */
 export async function visualQuestionAnswering(
   file_path: string,
   question: string
 ): Promise<string> {
-  const { pipeline } = await import('@xenova/transformers');
-  
-  const localCache = path.join(__dirname, '../blip2-opt-2.7b');
-  
-  const generator = await pipeline('visual-question-answering' as any, 'Xenova/blip2-opt-2.7b', {
-    cache_dir: localCache,
-    quantized: true
-  }) as any;
-  
-  const result = await generator({ image: file_path, question: question });
-  // Return the top answer with highest confidence
-  return (result as any)[0].label;
+  return '[DEPRECATED] BLIP2 VQA has been removed. Use visual_question_answering tool which calls the loaded LM Studio model (e.g., Qwen2.5-VL).';
 }
