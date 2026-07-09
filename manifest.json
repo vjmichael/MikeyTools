@@ -1,13 +1,13 @@
 {
-  "name": "universal-toolkit",
+  "name": "mikeystoolkit",
   "version": "2.3.0",
   "type": "plugin",
-  "description": "A comprehensive toolkit for file operations, web search, content fetching, code execution, patching, persistent memory, semantic search, schema validation, and OCR for LM Studio. Features 53 tools including advanced directory search, web search (DuckDuckGo/Google/Bing), file creation (txt, md, json, csv, html, docx, pdf), file reading, code execution sandbox, unified diff patching, SQLite-backed persistent memory, local semantic search, JSON Schema validation, Tesseract OCR, audio transcription, image description, video analysis, GitHub integration, code intelligence, and task state management.",
+  "description": "Mike's Multi-Tool Kit for LM Studio - File operations, web search, content fetching, code execution, patching, persistent memory, semantic search, schema validation, OCR, audio, vision, git, sandbox, and code intelligence.",
   "entry": "dist/index.js",
   "runner": "node",
-  "owner": "mikeytools",
-  "author": "Universal Toolkit",
-  "license": "MIT",
+  "owner": "michaelvang",
+  "author": "Michael Vang",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/example/universal-toolkit-lmstudio"

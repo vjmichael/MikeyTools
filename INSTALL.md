@@ -26,7 +26,7 @@ This plugin relies heavily on external TypeScript packages. **You do not need to
 | `@sebastianwessel/quickjs` | ^3.0.0 | QuickJS WASM sandbox for JS execution |
 | `@jitl/quickjs-wasmfile-release-sync` | ^0.32.0 | QuickJS WASM binary file |
 | `pyodide` | ^314.0.2 | Python WASM sandbox for Python execution |
-| `@xenova/transformers` | ^2.17.0 | ML models (BLIP-2, etc.) |
+| `@xenova/transformers` | ^2.17.0 | ML models (Qwen2.5-VL, etc.) |
 | `zod` | ^3.23.0 | Schema validation |
 | `playwright` | ^1.50.0 | Browser automation |
 | `cheerio` | ^1.1.0 | HTML parsing |
@@ -97,8 +97,8 @@ cd "c:\Users\UserMN4312\toolkit/lm-studio-plugin"
 # 2. Install all Node.js dependencies automatically:
 npm install --legacy-peer-deps  
 
-# 3. Download BLIP-2 model weights (required for describe_image & visual_question_answering):
-hf download Xenova/blip2-opt-2.7b --local-dir ./blip2-opt-2.7b
+# 3. Load Qwen2.5-VL model in LM Studio (for describe_image, analyze_video):
+# Open LM Studio → Discover tab → Search "Qwen2.5-VL-3B" → Download
 
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js):
 npm run build
@@ -122,8 +122,8 @@ cd /path/to/toolkit/lm-studio-plugin
 # 2. Install all Node.js dependencies automatically from package.json:
 npm install --legacy-peer-deps  
 
-# 3. Download BLIP-2 model weights:
-hf download Xenova/blip2-opt-2.7b --local-dir ./blip2-opt-2.7b
+# 3. Load Qwen2.5-VL model in LM Studio (for describe_image, analyze_video):
+# Open LM Studio → Discover tab → Search "Qwen2.5-VL-3B" → Download
 
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js): 
 npm run build
@@ -176,8 +176,8 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 | `memory_set/get/list/delete/log_append/tail` | Persistent sql.js-backed key-value store & log management | Pure JS — no extra deps needed!  
 | `index_build/query/update` | Semantic search indexing over directories using sentence transformers | Python + numpy/sentence-transformers installed via pip above 
 | `validate_schema` / `read_image` (OCR) | JSON/YAML validation against schemas and Tesseract-based image text extraction | Pillow, pytesseract, jsonschema packages from pip list above!
-| `describe_image` | Image captioning using BLIP-2 (ONNX) | `./blip2-opt-2.7b/` weights downloaded via `hf download` |
-| `visual_question_answering` | Answer specific questions about an image using BLIP-2 | `./blip2-opt-2.7b/` weights downloaded via `hf download` |
+| `describe_image` | Image captioning using loaded AI model (Qwen2.5-VL) | Qwen2.5-VL-3B loaded in LM Studio |
+| `visual_question_answering` | Answer questions about an image using loaded AI model | Qwen2.5-VL-3B loaded in LM Studio |
 
 ### ⚠️ Deprecated: Git Tools (2025-07-09)
 
@@ -200,13 +200,25 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 
 ---
 
-## 🛡️ Security Model: WASM-Based Sandboxing
+## 🛡️ Security Model: WASM-Based Sandboxing (Pyodide Only)
 
-This plugin uses **WebAssembly (WASM) sandboxing** for code execution instead of Docker/WSL2:
+This plugin uses **WebAssembly (WASM) sandboxing** for code execution:
 
-- **JavaScript**: `@sebastianwessel/quickjs` (QuickJS compiled to WASM)
+- **JavaScript**: Node.js direct execution (not sandboxed)
 - **Python**: `pyodide` (CPython compiled to WASM)
 - **Bash**: Not supported in sandboxed mode (requires real OS shell)
+
+**QuickJS WASM was deprecated and removed (2026-07-09):**
+- ❌ Browser-first design (not compatible with LM Studio's Node.js environment)
+- ❌ Intentionally restricts Node.js APIs for security
+- ❌ WASM loading issues in non-browser environments
+- ❌ Filesystem access restrictions break sandbox functionality
+- ❌ Limited Node.js compatibility (explicitly stated by library authors)
+
+**Pyodide WASM:**
+- Python execution in isolated WASM environment
+- Full Python standard library
+- Scientific packages (numpy, pandas) available
 
 **Benefits:**
 - ✅ No Docker/WSL2 required
@@ -248,5 +260,5 @@ tools-order.ts (TOOL REGISTRY)
 
 ---
 
-*Last Updated: 2025-07-09*
-*Updated: Added git tools deprecation, truncator integration, single source of truth for max_output_length*
+*Last Updated: 2026-07-09*
+*Updated: Removed BLIP2 dependency, added QuickJS/Pyodide WASM sandboxing docs, added Qwen2.5-VL vision model requirements*

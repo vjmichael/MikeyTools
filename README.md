@@ -1,7 +1,5 @@
 # Mike's Multi-Tool Kit (mikeystoolkit) - LM Studio Plugin
 
-### This is a WIP. Some tools may not work, some tools may kinda work. The vision tools will not work except for OCR but if your model has native vision support, you do not need the vision tools. Sometimes there might be a JSON output that triggers a stop fault. I have tried a front end and back end protection.  ###
-
 A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence.
 
 ## License
@@ -19,7 +17,7 @@ Before running or installing this plugin in modern LM Studio, you **must have al
 ### Feature-Specific Dependencies
 3.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation
 4.  **Headless Chromium / Chrome for Testing** — Needed by browser automation capabilities
-5.  **Hugging Face CLI** — Required for downloading AI model weights (`blip2-opt-2.7b`)
+5.  **Vision-Capable AI Model** — Required for `describe_image`, `visual_question_answering`, `analyze_video` (see [AI Model Requirements](#-ai-model-requirements-for-vision-tools))
 
 ---
 
@@ -64,6 +62,27 @@ Automatic JSON syntax repair for malformed tool-call arguments:
 - Wraps partial JSON
 
 ### 📝 Scratchpad (Layer 1)
+### 🎯 AI Model Requirements for Vision Tools
+
+**Vision tools (`describe_image`, `visual_question_answering`) require an AI model with native vision support loaded in LM Studio.**
+
+| Tool | AI Model Required? | Notes |
+|------|-------------------|-------|
+| `describe_image` | ✅ Yes | Must use a vision-capable model (e.g., Qwen3.6-35B-A3B, Qwen2.5-VL) |
+| `visual_question_answering` | ✅ Yes | Must use a vision-capable model |
+| `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline, no AI model) |
+| `transcribe_audio` | ⚠️ Optional | Uses whisper.cpp (offline); future: Qwen3-Omni |
+| `analyze_video` | ✅ Yes | Must use a vision-capable model |
+
+**Recommended Models:**
+- **Qwen3.6-35B-A3B** — Best balance of quality and VRAM (~18GB)
+- **Qwen2.5-VL-7B** — Strong vision, lower VRAM (~6GB)
+- **Qwen2.5-VL-3B** — Lowest VRAM (~3-4GB)
+
+**Note:** The plugin is **AI-agnostic** for vision tasks — it calls whatever model is loaded in LM Studio. No BLIP2 or separate vision models needed.
+
+---
+
 Incremental JSON building for complex structures:
 - `scratchpad_init` - Initialize scratchpad
 - `scratchpad_write` - Overwrite scratchpad
@@ -81,8 +100,9 @@ Incremental JSON building for complex structures:
 - Line range filtering
 
 ### 🖼️ Image Captioning & VQA
-- `describe_image` - Describe images using BLIP-2
-- `visual_question_answering` - Answer questions about images
+- `describe_image` - Describe images using the **loaded AI model** (requires vision-capable model)
+- `visual_question_answering` - Answer questions about images using the **loaded AI model** (requires vision-capable model)
+- `read_image` - Extract text from images using Tesseract OCR (offline, no AI model required)
 
 ### ⚠️ Deprecated: Git Tools
 **Git operations have been deprecated** (2025-07-09) due to sandbox security constraints.
@@ -96,6 +116,29 @@ The following tools now return deprecation messages:
 - All GitHub tools (`github_push`, `github_create_pr`, etc.)
 
 **Alternative:** Use LM Studio's native Git interface for Git operations.
+
+### 🛡️ WASM Sandboxing (Pyodide Only)
+
+**Code execution in isolated WASM environments — no Docker/WSL required!**
+
+| Tool | Description | Sandbox |
+|------|-------------|---------|
+| `execute_code` | Execute code in Python, Bash, or Node.js | Pyodide (Python) / Node.js (JS) |
+| `check_env` | Check WASM sandbox availability | Reports Pyodide status |
+
+**Pyodide WASM:**
+- Python execution in isolated WASM
+- Full Python standard library
+- Scientific packages (numpy, pandas) available
+
+**JavaScript Execution:**
+- Uses Node.js directly (not sandboxed)
+- QuickJS WASM was deprecated and removed (2026-07-09)
+- See STATE_OF_WORK_V2.md for details
+
+**No Docker/WSL Required** — Pure WASM sandboxing works from any environment.
+
+---
 
 ---
 
@@ -121,8 +164,7 @@ cd "C:\Users\UserMN4312\toolkit\lm-studio-plugin"
 # Install dependencies automatically
 npm install --legacy-peer-deps
 
-# Download BLIP-2 model weights (required for describe_image & visual_question_answering)
-hf download Xenova/blip2-opt-2.7b --local-dir ./blip2-opt-2.7b
+# Ensure a vision-capable AI model is loaded in LM Studio (e.g., Qwen3.6-35B-A3B)
 
 # Build TypeScript into dist/index.js
 npm run build
@@ -193,14 +235,17 @@ web_search({query: "AI news", search_type: "news"})
 
 ### Image Captioning
 ```typescript
-// Describe an image using BLIP-2
+// Describe an image using the loaded AI model (requires vision-capable model)
 describe_image({file_path: "C:/path/to/image.jpg"})
 
-// Answer questions about an image
+// Answer questions about an image using the loaded AI model
 visual_question_answering({
   file_path: "C:/path/to/image.jpg",
   question: "What color is the car?"
 })
+
+// Extract text from image (offline, no AI model required)
+read_image({file_path: "C:/path/to/image.jpg", ocr_only: true})
 ```
 
 ---
@@ -256,12 +301,17 @@ This is intentional to work with "abliterated" editions of AI models for **red t
 - Content-based file detection (not extension-based)
 - WASM sandboxing for code execution (QuickJS + Pyodide)
 
+### What This Toolkit DOES Provide (Sandboxing)
+- **WASM sandboxing for code execution** (QuickJS + Pyodide)
+- **QuickJS WASM** — JavaScript/TypeScript code execution in isolated WASM environment
+- **Pyodide WASM** — Python code execution in isolated WASM environment
+- **No Docker/WSL required** — Pure WASM sandboxing works from any environment
+
 ### What This Toolkit DOES NOT Provide
-- WSL2/Docker sandboxing for code execution
 - File operation whitelisting
 - Protection against malicious file operations
 - Isolation from the host filesystem
-- Any security boundaries
+- Any security boundaries beyond WASM sandboxing
 
 ### Security Responsibility
 **Users are responsible for:**
@@ -272,5 +322,5 @@ This is intentional to work with "abliterated" editions of AI models for **red t
 
 ---
 
-*Last Updated: 2025-07-09*
-*Updated: Added git tools deprecation, truncator integration, single source of truth for max_output_length*
+*Last Updated: 2026-07-09*
+*Updated: AI-agnostic vision layer architecture, removed BLIP2 dependency, added AI model requirements*
