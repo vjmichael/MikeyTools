@@ -1,15 +1,8 @@
 /**
  * AI-Agnostic Vision Layer for LM Studio Plugin
  * 
- * Provides vision capabilities by calling the already-loaded AI model
- * in LM Studio (e.g., Qwen3.6-35B-A3B, Qwen2.5-VL) via the LM Studio API.
- * 
- * This layer is:
- * - AI-agnostic (works with any vision-capable model)
- * - Zero additional VRAM (uses existing loaded model)
- * - Zero new downloads (no BLIP2/@xenova/transformers)
- * - Better quality (35B+ model vs 300M BLIP)
- * - Native video support (for Qwen2.5-VL models)
+ * Provides vision capabilities by calling the loaded AI model in LM Studio
+ * via the LM Studio API. Falls back to on-demand BLIP2 when no vision model is loaded.
  * 
  * @module vision_api
  */
@@ -20,6 +13,10 @@ import * as os from 'os';
 import { createModuleLogger } from './logger';
 
 const logger_vision_api = createModuleLogger('vision_api');
+
+function stripThinkTags(text: string): string {
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+}
 
 // ===================== INTERFACES =====================
 
@@ -59,22 +56,17 @@ export interface VisionCapability {
   modelName: string;
   maxImagesPerRequest: number;
   supportsVideo: boolean;
-  nativeVideoSupport: boolean; // True for Qwen2.5-VL, LLaVA-NeXT-Video
-  isQwen25VL: boolean; // Specifically Qwen2.5-VL (best native video support)
+  nativeVideoSupport: boolean;
+  isQwen25VL: boolean;
 }
 
 // ===================== LM STUDIO API CLIENT =====================
 
-/**
- * Check if LM Studio API is available and get loaded model info.
- */
 async function getLmStudioConfig(): Promise<{
   baseUrl: string;
   apiKey: string;
   modelInfo: { name: string; hasVision: boolean } | null;
 }> {
-  // LM Studio local API is available at http://localhost:1234/v1
-  // API key is typically empty for local instances
   return {
     baseUrl: 'http://localhost:1234/v1',
     apiKey: '',
@@ -82,37 +74,34 @@ async function getLmStudioConfig(): Promise<{
   };
 }
 
-/**
- * Detect if the loaded LM Studio model supports vision and native video.
- * Returns capability info or null if no model loaded.
- */
 export async function detectVisionCapability(): Promise<VisionCapability | null> {
   try {
     const config = await getLmStudioConfig();
     
-    // Check if a model is loaded by querying the API
     const response = await fetch(`${config.baseUrl}/models`, {
       method: 'GET',
       headers: config.apiKey ? { 'Authorization': `Bearer ${config.apiKey}` } : {}
     });
     
     if (!response.ok) {
-      logger_vision_api.debug('[vision_api] LM Studio API not available, vision tools will be disabled');
+      logger_vision_api.debug('[vision_api] LM Studio API not available');
       return null;
     }
     
-    const models: Array<{ id: string; object: string; created: number }> = await response.json();
+    const modelsData = await response.json();
+    let models: Array<{ id: string; object: string; created: number }> = [];
+    if (modelsData && typeof modelsData === 'object' && Array.isArray((modelsData as any).data)) {
+      models = (modelsData as any).data;
+    }
     
-    // Check if any loaded model has vision capabilities
-    // Qwen2.5-VL models have native video support
-    // Qwen3.6-35B-A3B has image support only
-    const visionModel = models.find(m => 
-      m.id.toLowerCase().includes('vl') || 
-      m.id.toLowerCase().includes('vision') ||
-      m.id.toLowerCase().includes('qwen') ||
-      m.id.toLowerCase().includes('llava') ||
-      m.id.toLowerCase().includes('bakllava')
-    );
+    let visionModel: { id: string; object: string; created: number } | undefined;
+    for (const m of models) {
+      const id = m.id.toLowerCase();
+      if (id.includes('vl') || id.includes('vision') || id.includes('qwen') || id.includes('llava') || id.includes('bakllava')) {
+        visionModel = m;
+        break;
+      }
+    }
     
     if (visionModel) {
       const isQwen25VL = visionModel.id.toLowerCase().includes('qwen2.5-vl') || 
@@ -121,7 +110,7 @@ export async function detectVisionCapability(): Promise<VisionCapability | null>
                             visionModel.id.toLowerCase().includes('llava-video') ||
                             visionModel.id.toLowerCase().includes('llava-next-video');
       
-      logger_vision_api.info(`[vision_api] Vision-capable model detected: ${visionModel.id} (native video: ${hasNativeVideo})`);
+      logger_vision_api.info(`[vision_api] Vision model: ${visionModel.id} (native video: ${hasNativeVideo})`);
       
       return {
         hasVision: true,
@@ -133,7 +122,7 @@ export async function detectVisionCapability(): Promise<VisionCapability | null>
       };
     }
     
-    logger_vision_api.debug('[vision_api] No vision-capable model detected in LM Studio');
+    logger_vision_api.debug('[vision_api] No vision-capable model detected');
     return {
       hasVision: false,
       modelName: 'unknown',
@@ -149,17 +138,15 @@ export async function detectVisionCapability(): Promise<VisionCapability | null>
   }
 }
 
+// ===================== BLIP2 FALLBACK =====================
+
 /**
- * Send an image to the loaded LM Studio model for description.
- * Uses the chat completions API with image attachment.
+ * Fallback image description using on-demand BLIP2.
+ * BLIP2 loads from disk only when needed, then unloads.
  */
-export async function describeImageViaLmStudio(
-  file_path: string,
-  prompt: string = 'Describe the content of this image in detail.'
-): Promise<VisionResult> {
+export async function describeImageViaBlip2(file_path: string, prompt: string = 'Describe the content of this image in detail.'): Promise<VisionResult> {
   const startTime = Date.now();
   
-  // Check if file exists
   if (!fs.existsSync(file_path)) {
     return {
       success: false,
@@ -168,7 +155,163 @@ export async function describeImageViaLmStudio(
     };
   }
   
-  // Get image metadata
+  try {
+    const { pipeline } = await import('@xenova/transformers');
+    logger_vision_api.info('[vision_api] Loading BLIP2 on-demand...');
+    
+    const captioner = await pipeline('image-to-text', 'Xenova/blip2-opt-2.7b');
+    const result = await captioner(file_path);
+    
+    await captioner.dispose();
+    logger_vision_api.info('[vision_api] BLIP2 unloaded.');
+    
+    let description = '(No description)';
+    if (typeof result === 'string') {
+      description = result;
+    } else if (Array.isArray(result) && result.length > 0) {
+      description = (result[0] as any).generated_text || '(No description)';
+    } else if ((result as any).generated_text) {
+      description = (result as any).generated_text;
+    }
+    
+    return {
+      success: true,
+      description,
+      model_used: 'Xenova/blip2-opt-2.7b (fallback)',
+      duration_ms: Date.now() - startTime
+    };
+  } catch (err) {
+    logger_vision_api.error('[vision_api] BLIP2 error:', err);
+    return {
+      success: false,
+      error: `BLIP2 error: ${err instanceof Error ? err.message : String(err)}`,
+      duration_ms: Date.now() - startTime
+    };
+  }
+}
+
+/**
+ * Fallback VQA using LM Studio API (BLIP2-VQA not available in this version).
+ */
+export async function visualQuestionAnsweringViaBlip2(file_path: string, question: string): Promise<VisionResult> {
+  const startTime = Date.now();
+  
+  if (!fs.existsSync(file_path)) {
+    return {
+      success: false,
+      error: `File not found: ${file_path}`,
+      duration_ms: Date.now() - startTime
+    };
+  }
+  
+  try {
+    // Check for vision model in LM Studio
+    const config = await getLmStudioConfig();
+    const modelsResp = await fetch(`${config.baseUrl}/models`);
+    if (!modelsResp.ok) {
+      return {
+        success: false,
+        error: 'LM Studio API not available.',
+        duration_ms: Date.now() - startTime
+      };
+    }
+    
+    const modelsData = await modelsResp.json();
+    let models: Array<{ id: string }> = [];
+    if (modelsData && typeof modelsData === 'object' && Array.isArray((modelsData as any).data)) {
+      models = (modelsData as any).data;
+    }
+    
+    let visionModel: { id: string } | undefined;
+    for (const m of models) {
+      const id = m.id.toLowerCase();
+      if (id.includes('vl') || id.includes('vision') || id.includes('qwen') || id.includes('llava')) {
+        visionModel = m;
+        break;
+      }
+    }
+    
+    if (!visionModel) {
+      return {
+        success: false,
+        error: 'No vision-capable model loaded in LM Studio. Load Qwen2.5-VL, LLaVA, or similar.',
+        duration_ms: Date.now() - startTime
+      };
+    }
+    
+    // Read image as base64
+    const imageBuffer = fs.readFileSync(file_path);
+    const imageBase64 = imageBuffer.toString('base64');
+    const imageFormat = path.extname(file_path).replace('.', '').toLowerCase();
+    
+    const response = await fetch(`${config.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config.apiKey ? { 'Authorization': `Bearer ${config.apiKey}` } : {})
+      },
+      body: JSON.stringify({
+        model: visionModel.id,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: `Question: ${question}\n\nPlease answer based on the image.` },
+              { type: 'image_url', image_url: { url: `data:image/${imageFormat};base64,${imageBase64}` } }
+            ]
+          }
+        ],
+        max_tokens: 2048,
+        temperature: 0.3
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      return {
+        success: false,
+        error: `LM Studio API error (${response.status}): ${errorText}`,
+        duration_ms: Date.now() - startTime
+      };
+    }
+    
+    const data = await response.json();
+    const rawAnswer = data.choices?.[0]?.message?.content || '';
+    const answer = stripThinkTags(rawAnswer) || '(No answer)';
+    
+    return {
+      success: true,
+      answer,
+      model_used: visionModel.id,
+      duration_ms: Date.now() - startTime
+    };
+    
+  } catch (err) {
+    logger_vision_api.error('[vision_api] VQA error:', err);
+    return {
+      success: false,
+      error: `VQA error: ${err instanceof Error ? err.message : String(err)}`,
+      duration_ms: Date.now() - startTime
+    };
+  }
+}
+
+// ===================== MAIN VISION FUNCTIONS =====================
+
+export async function describeImageViaLmStudio(
+  file_path: string,
+  prompt: string = 'Describe the content of this image in detail.'
+): Promise<VisionResult> {
+  const startTime = Date.now();
+  
+  if (!fs.existsSync(file_path)) {
+    return {
+      success: false,
+      error: `File not found: ${file_path}`,
+      duration_ms: Date.now() - startTime
+    };
+  }
+  
   let imageMetadata: ImageMetadata | null = null;
   try {
     const stat = fs.statSync(file_path);
@@ -189,7 +332,6 @@ export async function describeImageViaLmStudio(
     };
   }
   
-  // Read image as base64
   let imageBase64: string;
   try {
     const imageBuffer = fs.readFileSync(file_path);
@@ -202,26 +344,18 @@ export async function describeImageViaLmStudio(
     };
   }
   
-  // Check vision capability
   const capability = await detectVisionCapability();
   
   if (!capability) {
-    return {
-      success: false,
-      error: 'LM Studio API not available. Please ensure LM Studio is running with a vision-capable model loaded.',
-      duration_ms: Date.now() - startTime
-    };
+    logger_vision_api.info('[vision_api] LM Studio API unavailable, falling back to BLIP2...');
+    return await describeImageViaBlip2(file_path, prompt);
   }
   
   if (!capability.hasVision) {
-    return {
-      success: false,
-      error: `No vision-capable model loaded in LM Studio. Detected model: ${capability.modelName}. Please load a vision-capable model (e.g., Qwen3.6-35B-A3B, Qwen2.5-VL, LLaVA).`,
-      duration_ms: Date.now() - startTime
-    };
+    logger_vision_api.info(`[vision_api] No vision model (${capability.modelName}), falling back to BLIP2...`);
+    return await describeImageViaBlip2(file_path, prompt);
   }
   
-  // Call LM Studio API with image attachment
   try {
     const config = await getLmStudioConfig();
     
@@ -237,10 +371,7 @@ export async function describeImageViaLmStudio(
           {
             role: 'user',
             content: [
-              {
-                type: 'text',
-                text: prompt
-              },
+              { type: 'text', text: prompt },
               {
                 type: 'image_url',
                 image_url: {
@@ -257,15 +388,12 @@ export async function describeImageViaLmStudio(
     
     if (!response.ok) {
       const errorText = await response.text();
-      return {
-        success: false,
-        error: `LM Studio API error (${response.status}): ${errorText}`,
-        duration_ms: Date.now() - startTime
-      };
+      logger_vision_api.warn(`[vision_api] LM Studio API error (${response.status}), falling back to BLIP2...`);
+      return await describeImageViaBlip2(file_path, prompt);
     }
     
     const data = await response.json();
-    const description = data.choices?.[0]?.message?.content || '(No description generated)';
+    const description = data.choices?.[0]?.message?.content || '(No description)';
     
     return {
       success: true,
@@ -275,24 +403,17 @@ export async function describeImageViaLmStudio(
     };
     
   } catch (err) {
-    return {
-      success: false,
-      error: `Failed to call LM Studio API: ${err instanceof Error ? err.message : String(err)}`,
-      duration_ms: Date.now() - startTime
-    };
+    logger_vision_api.warn(`[vision_api] API error, falling back to BLIP2: ${err instanceof Error ? err.message : String(err)}`);
+    return await describeImageViaBlip2(file_path, prompt);
   }
 }
 
-/**
- * Answer a question about an image using the loaded LM Studio model.
- */
 export async function visualQuestionAnsweringViaLmStudio(
   file_path: string,
   question: string
 ): Promise<VisionResult> {
   const startTime = Date.now();
   
-  // Check if file exists
   if (!fs.existsSync(file_path)) {
     return {
       success: false,
@@ -301,18 +422,14 @@ export async function visualQuestionAnsweringViaLmStudio(
     };
   }
   
-  // Check vision capability
   const capability = await detectVisionCapability();
   
-  if (!capability || !capability.hasVision) {
-    return {
-      success: false,
-      error: 'No vision-capable model loaded in LM Studio. Please load a vision-capable model (e.g., Qwen3.6-35B-A3B, Qwen2.5-VL, LLaVA).',
-      duration_ms: Date.now() - startTime
-    };
+  // Always use LM Studio model for VQA (Qwen3.6 has vision support)
+  if (!capability) {
+    logger_vision_api.info('[vision_api] LM Studio API unavailable, falling back to BLIP2-VQA...');
+    return await visualQuestionAnsweringViaBlip2(file_path, question);
   }
   
-  // Read image as base64
   let imageBase64: string;
   try {
     const imageBuffer = fs.readFileSync(file_path);
@@ -325,10 +442,8 @@ export async function visualQuestionAnsweringViaLmStudio(
     };
   }
   
-  // Get image format
   let imageFormat = path.extname(file_path).replace('.', '').toLowerCase();
   
-  // Call LM Studio API with image + question
   try {
     const config = await getLmStudioConfig();
     
@@ -357,22 +472,20 @@ export async function visualQuestionAnsweringViaLmStudio(
             ]
           }
         ],
-        max_tokens: 512,
+        max_tokens: 2048,
         temperature: 0.3
       })
     });
     
     if (!response.ok) {
       const errorText = await response.text();
-      return {
-        success: false,
-        error: `LM Studio API error (${response.status}): ${errorText}`,
-        duration_ms: Date.now() - startTime
-      };
+      logger_vision_api.warn(`[vision_api] VQA API error (${response.status}), falling back to BLIP2-VQA...`);
+      return await visualQuestionAnsweringViaBlip2(file_path, question);
     }
     
     const data = await response.json();
-    const answer = data.choices?.[0]?.message?.content || '(No answer generated)';
+    const rawAnswer = data.choices?.[0]?.message?.content || '';
+    const answer = stripThinkTags(rawAnswer) || '(No answer)';
     
     return {
       success: true,
@@ -382,20 +495,11 @@ export async function visualQuestionAnsweringViaLmStudio(
     };
     
   } catch (err) {
-    return {
-      success: false,
-      error: `Failed to call LM Studio API: ${err instanceof Error ? err.message : String(err)}`,
-      duration_ms: Date.now() - startTime
-    };
+    logger_vision_api.warn(`[vision_api] VQA API error, falling back to BLIP2-VQA: ${err instanceof Error ? err.message : String(err)}`);
+    return await visualQuestionAnsweringViaBlip2(file_path, question);
   }
 }
 
-/**
- * Analyze a video using native video support (Qwen2.5-VL) or smart frame sampling fallback.
- * 
- * For Qwen2.5-VL models: Uses native video input (no frame extraction)
- * For other models: Falls back to smart key-frame sampling (not extraction)
- */
 export async function analyzeVideoViaLmStudio(
   file_path: string,
   intervalMs: number = 5000,
@@ -403,7 +507,6 @@ export async function analyzeVideoViaLmStudio(
 ): Promise<VideoAnalysisResult> {
   const startTime = Date.now();
   
-  // Check if file exists
   if (!fs.existsSync(file_path)) {
     return {
       success: false,
@@ -413,39 +516,32 @@ export async function analyzeVideoViaLmStudio(
     };
   }
   
-  // Check vision capability
   const capability = await detectVisionCapability();
   
   if (!capability || !capability.hasVision) {
     return {
       success: false,
       frames_analyzed: 0,
-      error: 'No vision-capable model loaded in LM Studio. Please load a vision-capable model (e.g., Qwen3.6-35B-A3B, Qwen2.5-VL, LLaVA).',
+      error: 'No vision-capable model loaded and video BLIP2 fallback not implemented.',
       duration_ms: Date.now() - startTime
     };
   }
   
-  // If Qwen2.5-VL with native video support, use native video processing
   if (capability.isQwen25VL) {
     return analyzeVideoNative(file_path, question, capability, startTime);
   }
   
-  // Fallback: Smart key-frame sampling (not extraction)
   return analyzeVideoWithSmartSampling(file_path, intervalMs, question, capability, startTime);
 }
 
-/**
- * Analyze video using native video support (Qwen2.5-VL).
- */
 async function analyzeVideoNative(
   file_path: string,
   question: string | undefined,
   capability: VisionCapability,
   startTime: number
 ): Promise<VideoAnalysisResult> {
-  logger_vision_api.info(`[vision_api] Using native video support for: ${file_path}`);
+  logger_vision_api.info(`[vision_api] Native video: ${file_path}`);
   
-  // Read video file as base64
   let videoBase64: string;
   try {
     const videoBuffer = fs.readFileSync(file_path);
@@ -459,16 +555,14 @@ async function analyzeVideoNative(
     };
   }
   
-  // Get video format
   const videoFormat = path.extname(file_path).replace('.', '').toLowerCase() || 'mp4';
   
-  // Call LM Studio API with native video input
   try {
     const config = await getLmStudioConfig();
     
     const prompt = question 
-      ? `Question: ${question}\n\nPlease analyze this video and answer the question.`
-      : `Please analyze this video and provide a detailed summary of what happens.`;
+      ? `Question: ${question}\n\nPlease analyze this video.`
+      : `Please analyze this video and provide a detailed summary.`;
     
     const response = await fetch(`${config.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -508,11 +602,11 @@ async function analyzeVideoNative(
     }
     
     const data = await response.json();
-    const summary = data.choices?.[0]?.message?.content || '(No video analysis generated)';
+    const summary = data.choices?.[0]?.message?.content || '(No video analysis)';
     
     return {
       success: true,
-      frames_analyzed: 0, // Native video doesn't use frames
+      frames_analyzed: 0,
       summary,
       native_video: true,
       model_used: capability.modelName,
@@ -523,16 +617,12 @@ async function analyzeVideoNative(
     return {
       success: false,
       frames_analyzed: 0,
-      error: `Failed to call LM Studio API with native video: ${err instanceof Error ? err.message : String(err)}`,
+      error: `Native video error: ${err instanceof Error ? err.message : String(err)}`,
       duration_ms: Date.now() - startTime
     };
   }
 }
 
-/**
- * Analyze video with smart key-frame sampling (fallback for non-Qwen2.5-VL models).
- * Uses scene detection to pick representative frames (not sequential extraction).
- */
 async function analyzeVideoWithSmartSampling(
   file_path: string,
   intervalMs: number,
@@ -540,15 +630,13 @@ async function analyzeVideoWithSmartSampling(
   capability: VisionCapability,
   startTime: number
 ): Promise<VideoAnalysisResult> {
-  logger_vision_api.info(`[vision_api] Using smart sampling for: ${file_path}`);
+  logger_vision_api.info(`[vision_api] Smart sampling: ${file_path}`);
   
-  // Create temp directory for frames
   const tempDir = path.join(os.tmpdir(), 'vision_api_frames');
   if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
   }
   
-  // Get video duration using ffprobe
   let durationSec = 0;
   try {
     const { execSync } = require('child_process');
@@ -558,52 +646,43 @@ async function analyzeVideoWithSmartSampling(
     });
     durationSec = parseFloat(probeOutput.trim()) || 0;
   } catch (err) {
-    durationSec = 60; // Default assumption
+    durationSec = 60;
   }
   
-  // Smart sampling: Pick frames at 0%, 25%, 50%, 75%, 100% + intervals
-  const MAX_FRAMES = 10; // Limit to prevent context overflow
+  const MAX_FRAMES = 10;
   const keyFrames = [0, durationSec * 0.25, durationSec * 0.5, durationSec * 0.75, durationSec];
   
-  // Add intermediate frames based on interval
   const intermediateFrames: number[] = [];
   for (let t = intervalMs / 1000; t < durationSec; t += intervalMs / 1000) {
     intermediateFrames.push(t);
   }
   
-  // Combine and deduplicate
   const allFrames = [...new Set([...keyFrames, ...intermediateFrames])].sort((a, b) => a - b);
   const selectedFrames = allFrames.slice(0, MAX_FRAMES);
   
   const frameDescriptions: Array<{ frame_number: number; timestamp: number; description: string }> = [];
   
-  logger_vision_api.info(`[vision_api] Smart sampling: ${selectedFrames.length} frames from ${durationSec}s video`);
+  logger_vision_api.info(`[vision_api] Smart sampling: ${selectedFrames.length} frames from ${durationSec}s`);
   
-  // Extract and analyze key frames
   for (let i = 0; i < selectedFrames.length; i++) {
     const timestamp = selectedFrames[i];
     const framePath = path.join(tempDir, `frame_${i.toString().padStart(4, '0')}.jpg`);
     
     try {
-      // Extract single frame using ffmpeg
       const { execSync } = require('child_process');
       const ffmpegPath = path.join(__dirname, '..', 'node_modules', 'ffmpeg-static', 'ffmpeg.exe');
       execSync(`"${ffmpegPath}" -i "${file_path}" -vframes 1 -ss ${timestamp} -y "${framePath}"`, {
         stdio: 'pipe'
       });
       
-      // Read frame as base64
       const frameBuffer = fs.readFileSync(framePath);
       const frameBase64 = frameBuffer.toString('base64');
-      
-      // Get frame format
       const frameFormat = 'jpg';
       
-      // Send to LM Studio for analysis
       const config = await getLmStudioConfig();
       const prompt = question 
-        ? `Question: ${question}\n\nPlease describe this video frame at ${timestamp}s.`
-        : `Describe what is happening in this video frame at ${timestamp}s.`;
+        ? `Question: ${question}\n\nDescribe this frame at ${timestamp}s.`
+        : `Describe this video frame at ${timestamp}s.`;
       
       const response = await fetch(`${config.baseUrl}/chat/completions`, {
         method: 'POST',
@@ -642,18 +721,15 @@ async function analyzeVideoWithSmartSampling(
         });
       }
       
-      // Clean up frame file
       if (fs.existsSync(framePath)) {
         fs.unlinkSync(framePath);
       }
       
     } catch (err) {
-      logger_vision_api.warn(`[vision_api] Failed to analyze frame at ${timestamp}s:`, err);
-      // Continue to next frame
+      logger_vision_api.warn(`[vision_api] Frame ${timestamp}s failed:`, err);
     }
   }
   
-  // Clean up temp directory
   try {
     const files = fs.readdirSync(tempDir);
     for (const file of files) {
@@ -664,10 +740,9 @@ async function analyzeVideoWithSmartSampling(
     // Ignore cleanup errors
   }
   
-  // Generate summary from frame descriptions
   let summary = '';
   if (frameDescriptions.length > 0) {
-    summary = `Video analysis complete (smart sampling). ${frameDescriptions.length} key frames analyzed from ${durationSec}s video.\n\nKey observations:\n${frameDescriptions.map(f => `- ${f.timestamp}s: ${f.description}`).join('\n')}`;
+    summary = `Video analysis (${frameDescriptions.length} frames from ${durationSec}s).\n\nKey observations:\n${frameDescriptions.map(f => `- ${f.timestamp}s: ${f.description}`).join('\n')}`;
   }
   
   return {
@@ -680,5 +755,3 @@ async function analyzeVideoWithSmartSampling(
     duration_ms: Date.now() - startTime
   };
 }
-
-// No duplicate exports needed - functions are already exported above

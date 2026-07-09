@@ -11,9 +11,13 @@ export function createBehavioralGuidancePreprocessor(): (
   _ctl: any,
   message: ChatMessage
 ) => Promise<string | ChatMessage> {
-  // Resolve path to behavioral-guidance.json relative to the bundled location
-  // When bundled by LM Studio, __dirname points to the .lmstudio/ folder
-  const guidancePath = path.join(__dirname, '../../src/tools/behavioral-guidance.json');
+  // Resolve path to behavioral-guidance.json relative to the bundled location.
+  // Bundled production.js lives at <plugin-root>/.lmstudio/production.js, so
+  // __dirname here is <plugin-root>/.lmstudio — only ONE level up reaches the
+  // plugin root, then into src/tools where behavioral-guidance.json lives.
+  // (Previous version used '../../' — two levels up — which skipped past the
+  // plugin root entirely and caused ENOENT.)
+  const guidancePath = path.join(__dirname, '..', 'src', 'tools', 'behavioral-guidance.json');
   
   let guidance: any;
   try {

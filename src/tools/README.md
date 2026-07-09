@@ -13,7 +13,7 @@ All tools are automatically registered in the LM Studio plugin. No manual setup 
 lms dev --install
 ```
 
-## 📊 Tool Inventory (67 Active Tools)
+## 📊 Tool Inventory (64 Active Tools)
 
 ### 🔧 FILE OPERATIONS (14 tools)
 | Tool | File | Description |
@@ -210,4 +210,4 @@ Git operations have been deprecated due to LM Studio's sandbox security constrai
 
 *Last Updated: 2026-07-09*  
 *Status: PRODUCTION READY*  
-*Tools: 67 active | 5 skipped | 0 failed*
+*Tools: 64 active | 5 skipped | 0 failed*
