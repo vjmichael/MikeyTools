@@ -14,9 +14,9 @@ Before running or installing this plugin in modern LM Studio, you **must have al
 2.  **Node.js v18+** ([Download](https://nodejs.org/) ) — Runtime environment for TypeScript compilation and npm packages! 
 
 ### Sandbox / Execution Environment (Choose ONE)
-3a. **WSL *(Windows Subsystem for Linux)* REQUIRED fallback**: Run `wsl --install` in PowerShell as Administrator, then restart your machine!
+~~3a. **WSL *(Windows Subsystem for Linux)* REQUIRED fallback**: Run `wsl --install` in PowerShell as Administrator, then restart your machine!~~
 
-3b. Docker Desktop *Optional but recommended alternative to WSL*: Download from [docker.com](https://www.docker.com/) and enable 'WSL 2 backend' if you have it installed too! 
+~~3b. Docker Desktop *Optional but recommended alternative to WSL*: Download from [docker.com](https://www.docker.com/) and enable 'WSL 2 backend'~~ ~~if you have it installed too!~~
 
 ### Feature-Specific Dependencies
 4.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by multiple features: OCR, semantic search (`index_build`), schema validation (`validate_schema`) etc! Install via official installer with Add to PATH checked!
