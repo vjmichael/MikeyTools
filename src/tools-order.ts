@@ -1084,10 +1084,14 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
     parameters: {
       file_path: z.string().describe("Path to the image file")
     } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
+    implementation: wrapWithTruncation(async (params, ctx) => {
       const result = await describeImageViaLmStudio(params.file_path);
-      return JSON.stringify(result, null, 2);
-    }
+      // Return actual description in chat, not raw JSON
+      if (result.success && result.description) {
+        return `Image Description:\n\n${result.description}`;
+      }
+      return `Error: ${result.error || 'Unknown error'}`;
+    })
   });
   tools.push(describeImageTool);
 
@@ -1387,10 +1391,14 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
       file_path: z.string().describe("Path to the image file"),
       question: z.string().describe("The question to answer about the image")
     } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
+    implementation: wrapWithTruncation(async (params, ctx) => {
       const result = await visualQuestionAnsweringViaLmStudio(params.file_path, params.question);
-      return JSON.stringify({ success: result.success, answer: result.answer || result.error }, null, 2);
-    }
+      // Return actual answer in chat, not raw JSON
+      if (result.success && result.answer) {
+        return `Answer: ${result.answer}`;
+      }
+      return `Error: ${result.error || 'Unknown error'}`;
+    })
   });
   tools.push(visualQuestionAnsweringTool);
 
