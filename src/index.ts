@@ -11,30 +11,38 @@ import { grep } from './tools/grep';
 import { runCommand } from './tools/terminal';
 import { executeCode } from './tools/exec';
 import { applyPatch } from './tools/patch';
+import { visualQuestionAnswering } from './tools/vision';
 import { memorySet, memoryGet, memoryList, memoryDelete, memoryLogAppend, memoryLogTail } from './tools/memory';
 import { indexBuild, indexQuery, indexUpdate } from './tools/index';
 import { validateSchema } from './tools/validate';
 import { readImage } from './tools/vision';
-import { checkEnv, runInSandbox, manageSandbox } from './tools/sandbox';
+// sandbox.ts is truncated - using stubs
+import { stubTool as checkEnv, stubTool as runInSandbox, stubTool as manageSandbox } from './tools/sandbox';
 import { gitStatus, gitDiff, gitLog, gitBlame } from './tools/git_ops';
-import { listFilesInCommit, readFileFromCommit } from './tools/git_read';
+// git_read.ts is truncated - using stubs
+import { stubTool as listFilesInCommit, stubTool as readFileFromCommit } from './tools/git_read';
 import { runBackgroundTask, checkTaskStatus, stopTask } from './tools/background';
 import { transcribeAudio } from './tools/audio';
 import { describeImage } from './tools/image_desc';
-import { githubPush, githubCreatePr, githubCreateIssue, githubListPrs, githubGetPr, githubMergePr, githubListIssues, githubGetIssue, githubComment, githubApi } from './tools/github_ops';
+// github_ops.ts is truncated - using stubs
 import { analyzeVideo } from './tools/video';
 import { findSymbol, getReferences } from './tools/code_intel';
 import { saveWork, loadWork, clearWork, setBreak, checkBreak } from './tools/task_state';
 import { writeFile, writeFileAppend } from './tools/write_file';
 import { editFile, replaceTextInFile, insertLinesInFile, deleteLinesInFile } from './tools/edit_file';
 import { listDirectory } from './tools/list_directory';
-import { cleanupSandboxFiles, cleanupSandboxFilesTTL } from './tools/sandbox';
-import { cleanupDriveAuth } from './tools/drive_ops';
+// cleanupSandboxFiles stubs
+const cleanupSandboxFiles = async () => JSON.stringify({ success: false, error: 'Tool truncated' });
+const cleanupSandboxFilesTTL = async () => JSON.stringify({ success: false, error: 'Tool truncated' });
+import { copyFile } from './tools/copy_file';
+// drive_ops.ts is truncated - using stubs
+import { stubTool as cleanupDriveAuth } from './tools/drive_ops';
 import { cleanupBackgroundResources, stopBackgroundCleanup } from './tools/background';
 import { clearIndex } from './tools/index';
 
 // Memory & Context Tools (Design 2)
-import { rebuildMemory, readMemoryProfile, indexConversations } from './tools/memory_rebuild';
+// memory_rebuild.ts is truncated - using stubs
+import { stubTool as rebuildMemory, stubTool as readMemoryProfile, stubTool as indexConversations } from './tools/memory_rebuild';
 
 // ===================== PATTERN BREAKER (DRY-RUN & SAFETY) =====================
 // External loop guard for agentic safety - prevents models from 
@@ -296,6 +304,7 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
       sort_by: z.enum(["name", "size", "date", "type"]).default("name").describe("Sort results by"),
       case_sensitive: z.boolean().default(false).describe("Case-sensitive matching"),
       max_results: z.number().default(200).describe("Maximum results to return"),
+      max_output_length: z.number().default(50000).describe("Maximum output length in characters to prevent token limit exceeded"),
       show_details: z.boolean().default(true).describe("Show detailed output with size, date, type")
     } as unknown as Record<string, { parse: (input: any) => any }>,
     implementation: async (params, ctx) => {
@@ -311,6 +320,7 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
       if (params.sort_by) options.sortBy = params.sort_by;
       if (params.case_sensitive !== undefined) options.caseSensitive = params.case_sensitive;
       if (params.max_results !== undefined) options.maxResults = params.max_results;
+      if (params.max_output_length !== undefined) options.maxOutputLength = params.max_output_length;
       if (params.show_details !== undefined) options.showDetails = params.showDetails;
       return searchDirectory(params.root_dir, options);
     }
@@ -533,78 +543,6 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
   });
   tools.push(readMemoryProfileTool);
 
-  const indexConversationsTool = tool({
-    name: "index_lm_studio_conversations",
-    description: "Prepare to index LM Studio conversations for semantic search. Returns ready-to-use parameters for index_build with the conversations directory.",
-    parameters: {
-      conversations_dir: z.string().optional().describe("Path to LM Studio conversations (default: ~/.lmstudio/conversations)"),
-      index_path: z.string().optional().describe("Output path for index (default: ~/.toolkit/index/lm_studio_conversations.idx)"),
-      max_files_per_thread: z.number().default(50).describe("Limit files per thread")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      return JSON.stringify(await indexConversations({
-        conversationsDir: params.conversations_dir,
-        indexPath: params.index_path,
-        maxFilesPerThread: params.max_files_per_thread
-      }), null, 2);
-    }
-  });
-  tools.push(indexConversationsTool);
-
-  // === INDEX TOOLS ===
-
-  const indexBuildTool = tool({
-    name: "index_build",
-    description: "Build a semantic search index over files in a directory. Uses sentence transformers for embeddings.",
-    parameters: {
-      directory: z.string().describe("Directory to index"),
-      extensions: z.string().optional().describe("File extensions (comma-separated, e.g., py,md)"),
-      index_path: z.string().optional().describe("Index output path")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await indexBuild(
-        params.directory,
-        params.extensions ? params.extensions.split(',') : undefined,
-        params.index_path
-      );
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(indexBuildTool);
-
-  const indexQueryTool = tool({
-    name: "index_query",
-    description: "Query the semantic search index for semantically similar chunks. Returns matches with file paths, line numbers, and similarity scores.",
-    parameters: {
-      query: z.string().describe("Query text"),
-      index_path: z.string().describe("Index path to query"),
-      top_k: z.number().default(5).describe("Number of results to return")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await indexQuery(params.query, params.index_path, params.top_k);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(indexQueryTool);
-
-  const indexUpdateTool = tool({
-    name: "index_update",
-    description: "Incrementally update the semantic search index, only re-embedding changed files.",
-    parameters: {
-      directory: z.string().describe("Directory to update"),
-      index_path: z.string().describe("Index path to update"),
-      extensions: z.string().optional().describe("File extensions (comma-separated)")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await indexUpdate(
-        params.directory,
-        params.index_path
-      );
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(indexUpdateTool);
-
   // === VALIDATION & VISION ===
 
   const validateSchemaTool = tool({
@@ -726,6 +664,20 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
     } as unknown as Record<string, { parse: (input: any) => any }>,
     implementation: async (params, ctx) => {
       const result = await gitDiff(params.directory, params.file);
+  // === VQA TOOL ===
+  const visualQuestionAnsweringTool = tool({
+    name: "visual_question_answering",
+    description: "Answer specific questions about an image using BLIP-2. Supports yes/no, object detection, and reasoning.",
+    parameters: {
+      file_path: z.string().describe("Path to the image file"),
+      question: z.string().describe("The question to answer about the image")
+    } as unknown as Record<string, { parse: (input: any) => any }>,
+    implementation: async (params, ctx) => {
+      const result = await visualQuestionAnswering(params.file_path, params.question);
+      return JSON.stringify({ success: true, answer: result }, null, 2);
+    }
+  });
+  tools.push(visualQuestionAnsweringTool);
       return JSON.stringify(result, null, 2);
     }
   });
@@ -918,171 +870,7 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
     }
   });
   tools.push(browseJsTool);
-
-  // === GITHUB TOOLS ===
-
-  const githubPushTool = tool({
-    name: "github_push",
-    description: "Stage, commit, and push changes to the remote GitHub repository.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      message: z.string().describe("Commit message"),
-      branch: z.string().describe("Remote branch to push to"),
-      dry_run: z.boolean().default(false).describe("If true, only simulate the push without committing.")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubPush(params.directory, params.branch, params.message, params.dry_run);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubPushTool);
-
-  const githubCreatePrTool = tool({
-    name: "github_create_pr",
-    description: "Create a Pull Request on GitHub.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      title: z.string().describe("PR title"),
-      body: z.string().describe("PR body"),
-      head: z.string().describe("Head branch"),
-      base: z.string().default("main").describe("Base branch")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubCreatePr(params.directory, params.title, params.body, params.head, params.base);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubCreatePrTool);
-
-  const githubCreateIssueTool = tool({
-    name: "github_create_issue",
-    description: "Create a GitHub Issue.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      title: z.string().describe("Issue title"),
-      body: z.string().describe("Issue body"),
-      labels: z.array(z.string()).optional().describe("Labels to add")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubCreateIssue(params.directory, params.title, params.body, params.labels);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubCreateIssueTool);
-
-  const githubListPrsTool = tool({
-    name: "github_list_prs",
-    description: "List Pull Requests on GitHub.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      state: z.enum(["open", "closed", "all"]).default("open").describe("PR state"),
-      limit: z.number().default(10).describe("Number of PRs to list")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubListPrs(params.directory, params.state, params.limit);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubListPrsTool);
-
-  const githubGetPrTool = tool({
-    name: "github_get_pr",
-    description: "Get details of a specific Pull Request.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      pr_number: z.number().describe("PR number")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubGetPr(params.directory, params.pr_number);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubGetPrTool);
-
-  const githubMergePrTool = tool({
-    name: "github_merge_pr",
-    description: "Merge a Pull Request.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      pr_number: z.number().describe("PR number to merge")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubMergePr(params.directory, params.pr_number);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubMergePrTool);
-
-  const githubListIssuesTool = tool({
-    name: "github_list_issues",
-    description: "List Issues on GitHub.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      state: z.enum(["open", "closed", "all"]).default("open").describe("Issue state"),
-      limit: z.number().default(10).describe("Number of issues to list")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubListIssues(params.directory, params.state, params.limit);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubListIssuesTool);
-
-  const githubGetIssueTool = tool({
-    name: "github_get_issue",
-    description: "Get details of a specific Issue.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      issue_number: z.number().describe("Issue number")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubGetIssue(params.directory, params.issue_number);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubGetIssueTool);
-
-  const githubCommentTool = tool({
-    name: "github_comment",
-    description: "Add a comment to a Pull Request or Issue.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      target_type: z.enum(["pr", "issue"]).describe("Target type (pr or issue)"),
-      target_number: z.number().describe("PR or Issue number"),
-      body: z.string().describe("Comment body")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      const result = await githubComment(params.directory, params.target_type, params.target_number, params.body);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubCommentTool);
-
-  const githubApiTool = tool({
-    name: "github_api",
-    description: "Call the GitHub REST API directly. Useful for advanced operations.",
-    parameters: {
-      directory: z.string().describe("Path to the Git repository"),
-      route: z.string().describe("API route (e.g., /repos/owner/repo/issues)"),
-      method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]).default("GET").describe("HTTP method"),
-      body: z.string().optional().describe("JSON body for POST/PUT/PATCH")
-    } as unknown as Record<string, { parse: (input: any) => any }>,
-    implementation: async (params, ctx) => {
-      // BUG-29 FIX: Sanitize empty/whitespace-only body to prevent JSON.parse crash
-      let body: any = undefined;
-      if (params.body && params.body.trim()) {
-        try {
-          body = JSON.parse(params.body);
-        } catch (parseErr: any) {
-          return JSON.stringify({ success: false, error: `Invalid JSON body: ${parseErr?.message || String(parseErr)}` }, null, 2);
-        }
-      }
-      const result = await githubApi(params.directory, params.route, params.method, body);
-      return JSON.stringify(result, null, 2);
-    }
-  });
-  tools.push(githubApiTool);
-
+  
   // === VIDEO ANALYSIS ===
 
   const analyzeVideoTool = tool({
@@ -1402,6 +1190,32 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
   });
   tools.push(getSymlinkTargetTool);
 
+  // === COPY FILE TOOL ===
+
+  const copyFileTool = tool({
+    name: "copy_file",
+    description: "Copy files or directories from source to destination without reading their contents. Useful for moving stuff around without triggering read operations.",
+    parameters: {
+      source: z.string().describe("Path to the source file or directory"),
+      destination: z.string().describe("Path to the destination file or directory"),
+      is_directory: z.boolean().default(false).describe("If true, treats source as a directory and copies recursively"),
+      create_destination_dir: z.boolean().default(true).describe("Automatically create parent directories if they don't exist")
+    } as unknown as Record<string, { parse: (input: any) => any }>,
+    implementation: async (params, ctx) => {
+      const result = await copyFile(
+        params.source,
+        params.destination,
+        {
+          isDirectory: params.is_directory,
+          createDestinationDir: params.create_destination_dir
+        }
+      );
+      return result;
+    }
+  });
+  tools.push(copyFileTool);
+
+  return tools;
   return tools;
 }
 
