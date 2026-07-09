@@ -104,6 +104,17 @@ Incremental JSON building for complex structures:
 - `visual_question_answering` - Answer questions about images using the **loaded AI model** (requires vision-capable model)
 - `read_image` - Extract text from images using Tesseract OCR (offline, no AI model required)
 
+### ⚠️ Note on Vision Tool Output
+**Vision tools (`describe_image`, `visual_question_answering`) return their results in the gray result box, not in the main chat.**
+
+This is a **limitation of LM Studio's plugin architecture**:
+- Toolkit tools return strings to LM Studio
+- LM Studio displays results in the gray result box (by design)
+- LM Studio does **not** provide an API to push messages to chat from plugins
+- When the LM Studio Server API is active, the server can push return strings into chat messages
+
+**Workaround:** Results are visible in the gray result box under the tool call. This is the expected behavior for all LM Studio plugin tools.
+
 ### ⚠️ Deprecated: Git Tools
 **Git operations have been deprecated** (2025-07-09) due to sandbox security constraints.
 The following tools now return deprecation messages:
