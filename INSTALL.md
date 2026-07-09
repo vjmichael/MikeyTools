@@ -6,7 +6,6 @@ Before installing or running this plugin, you **must have all of the following**
 
 ### Core Runtime Requirements
 1.  **PowerShell 7+ (Windows ONLY)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest) if not already present. This plugin requires PowerShell's modern module loading capabilities; the legacy Windows PowerShell is NOT compatible.
-
 2.  **Node.js v18+** ([Download](https://nodejs.org/)) — The TypeScript compiler and runtime environment. npm comes bundled with Node.js automatically! 
 
 ### Sandbox / Execution Environment (Choose ONE)
@@ -21,17 +20,45 @@ Before installing or running this plugin, you **must have all of the following**
 > ⚠️ **Note:** On Linux/macOS, standard bash/zsh terminals work natively without extra sandboxing requirements.
 
 ### Feature-Specific Dependencies
-4.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by multiple features: OCR (`read_image`), semantic search (`index_build`), schema validation (`validate_schema`), and PDF processing libraries. Install via official installer with "Add to PATH" checked!
-
-5.  **Headless Chromium / Chrome for Testing** ([Download](https://developer.chrome.com/blog/chrome-for-testing/)) — Required by Puppeteer/Playwright browser automation features (image search, web content fetching). After downloading:
-   - Extract the zip file  
-   - Set environment variable `PUPPETEER_EXECUTABLE_PATH` to point at your extracted binary path!
+4.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation. Install via official installer with "Add to PATH" checked!
+5.  **Hugging Face CLI** — Required for downloading AI model weights. Install via `pip install huggingface_hub`
+6.  **Headless Chromium / Chrome for Testing** ([Download](https://developer.chrome.com/blog/chrome-for-testing/)) — Required by Puppeteer/Playwright browser automation features. After downloading, set environment variable `PUPPETEER_EXECUTABLE_PATH` to point at your extracted binary path!
 
 ---
 
 ## 📦 Project Dependencies (`package.json`) 
 
 This plugin relies heavily on external TypeScript packages (like `cheerio`, `docx`, etc.). **You do not need to install these manually.** By running the installation commands below, npm will automatically download and configure every necessary dependency from our project's package.json!
+
+### Additional Software Dependencies (Required for Full Feature Set)
+
+The following additional software is required for media and advanced features:
+
+| Software | Purpose | Install Command | Notes |
+|----------|---------|----------------|-------|
+| **ffmpeg** | Video/audio processing (`analyze_video`) | Download from https://ffmpeg.org | Add to PATH |
+| **whisper.cpp** | Audio transcription (`transcribe_audio`) | https://github.com/ggerganov/whisper.cpp/releases | Add to PATH |
+| **@xenova/transformers** | BLIP-2 image captioning & VQA | `npm install @xenova/transformers` | Already in package.json |
+| **Hugging Face CLI** | Download BLIP-2 weights | `pip install huggingface_hub` | Run `hf auth login` first |
+| **Visual Studio Build Tools** | Rust compilation (for tokenizers) | `winget install Microsoft.VisualStudio.2022.BuildTools --id Microsoft.VisualStudio.2022.BuildTools --override "--add Microsoft.VisualStudio.Workload.VCTools --passive --norestart"` | Required for Rust-based packages |
+| **Rust (rustup)** | Rust toolchain | `winget install Rustlang.Rustup` | Required for tokenizers compilation |
+
+### PATH Configuration
+
+Add these to your Windows Environment PATH (System or User variables):
+
+```powershell
+# Add whisper-bin
+[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Users\UserMN4312\toolkit\lm-studio-plugin\whisper-bin", "User")
+
+# Add ffmpeg
+[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\ffmpeg\bin", "User")
+
+# Add Python Scripts (for hf CLI)
+$env:PATH += ";$env:APPDATA\Python\Python314\Scripts"
+```
+
+**Verify:** Close and reopen PowerShell, then run `where.exe whisper-cli`, `where.exe ffmpeg`, and `where.exe hf`.
 
 ---
 
@@ -44,16 +71,19 @@ cd "c:\Users\UserMN4312\toolkit/lm-studio-plugin"
 # 2. Install all Node.js dependencies automatically:
 npm install --legacy-peer-deps  
 
-# 3. Build TypeScript into a format LM Studio can read (dist/index.js):
+# 3. Download BLIP-2 model weights (required for describe_image & visual_question_answering):
+hf download Xenova/blip2-opt-2.7b --local-dir ./blip2-opt-2.7b
+
+# 4. Build TypeScript into a format LM Studio can read (dist/index.js):
 npm run build
 
-# 4. Verify dist folder was created successfully:
+# 5. Verify dist folder was created successfully:
 dir dist 
 ```
 
 **Troubleshooting Windows Issues:**  
 - If `node` or `npm` is not recognized, restart PowerShell and try again! 
-- For Python dependencies after installing everything else: `pip install -r requirements.txt` (see below)
+- For Python dependencies after installing everything else: `pip install huggingface_hub`
 - To verify WSL installation works correctly in your environment: run `wsl --status`
 
 ---
@@ -67,10 +97,13 @@ cd /path/to/toolkit/lm-studio-plugin
 # 2. Install all Node.js dependencies automatically from package.json:
 npm install --legacy-peer-deps  
 
-# 3. Build TypeScript into a format LM Studio can read (dist/index.js): 
+# 3. Download BLIP-2 model weights:
+hf download Xenova/blip2-opt-2.7b --local-dir ./blip2-opt-2.7b
+
+# 4. Build TypeScript into a format LM Studio can read (dist/index.js): 
 npm run build
 
-# 4. Verify dist folder was created successfully:  
+# 5. Verify dist folder was created successfully:  
 ls -la dist   
 ```
 
@@ -97,19 +130,7 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
 > ⚠️ **Windows Users:** Replace `/path/to/node` with your actual Node executable path (e.g., `C:\Program Files\nodejs\node.exe`)! 
 
 ---
-## Second Method (Preferred Method)
 
-1. In the tool plugin directory, open up terminal. On Windows, prese the Window's Key ⊞ + X. A menu will open up and choose the Powershell. 
-Navigate to the tool plugin directory. 
-2. Now enter the command "npm insall" to install the dependencies. Then type the command "npm run build." This should build the javascript (.js) 3. folder called dist. If you ever need to do a clean install, use the command "npm run clean" 
-4. Then run the command "lms dev --install." You can run "lms dev" but pressing ctrl+c wills order a stop and your plugin will disappear from the LM Studio's Integration panel on the right.
-
-```
-npm install
-npm run build
-lms dev --install
-```
----
 ## 🐍 Optional: Advanced Feature Python Dependencies  
 
 If you want to use features like OCR, semantic search, or schema validation beyond basic file/web operations, install these after installing the core dependencies above:
@@ -130,3 +151,9 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 | `memory_set/get/list/delete/log_append/tail` | Persistent sql.js-backed key-value store & log management | Pure JS — no extra deps needed!  
 | `index_build/query/update` | Semantic search indexing over directories using sentence transformers | Python + numpy/sentence-transformers installed via pip above 
 | `validate_schema` / `read_image` (OCR) | JSON/YAML validation against schemas and Tesseract-based image text extraction | Pillow, pytesseract, jsonschema packages from pip list above!
+| `describe_image` | Image captioning using BLIP-2 (ONNX) | `./blip2-opt-2.7b/` weights downloaded via `hf download` |
+| `visual_question_answering` | Answer specific questions about an image using BLIP-2 | `./blip2-opt-2.7b/` weights downloaded via `hf download` |
+
+--- 
+*Last Updated: 2026-07-09*
+*Updated: Added BLIP-2 captioning & VQA support, removed LAVIS/blip-caption references*
