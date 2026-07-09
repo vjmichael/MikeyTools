@@ -199,7 +199,7 @@ write_file({
 // ❌ BAD - Regex escaping issues
 execute_code({
   language: 'powershell',
-  code: 'Select-String -Path "..." -Pattern "from [\'\\\\"]\\.\\./types[\'\\\\"]"'
+  code: 'Select-String -Path "..." -Pattern "from [\'\\\\\"]\\.\\\\./types[\'\\\\\"]"'
 })
 
 // ✅ GOOD - Use grep tool

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Vision/OCR Tool for LM Studio Plugin
  * 
  * Extracts text from images using Tesseract OCR (offline).
@@ -83,4 +83,45 @@ export async function readImage(
       format: format
     };
   }
+}
+
+/**
+ * Image Captioning Tool using BLIP-2
+ * Downloads weights to local cache to bypass sandbox restrictions
+ */
+export async function describeImage(file_path: string): Promise<string> {
+  const { pipeline } = await import('@xenova/transformers');
+  
+  // Point directly to your downloaded BLIP-2 weights
+  const localCache = path.join(__dirname, '..', 'blip2-opt-2.7b');
+  
+  const generator = await pipeline('image-to-text', 'Xenova/blip2-opt-2.7b', {
+    cache_dir: localCache,
+    quantized: true
+  }) as any;
+  
+  const result = await generator(file_path);
+  return (result as any)[0].generated_text;
+}
+
+/**
+ * Visual Question Answering (VQA) Tool using BLIP-2
+ * Answers specific questions about an image
+ */
+export async function visualQuestionAnswering(
+  file_path: string,
+  question: string
+): Promise<string> {
+  const { pipeline } = await import('@xenova/transformers');
+  
+  const localCache = path.join(__dirname, '../blip2-opt-2.7b');
+  
+  const generator = await pipeline('visual-question-answering' as any, 'Xenova/blip2-opt-2.7b', {
+    cache_dir: localCache,
+    quantized: true
+  }) as any;
+  
+  const result = await generator({ image: file_path, question: question });
+  // Return the top answer with highest confidence
+  return (result as any)[0].label;
 }

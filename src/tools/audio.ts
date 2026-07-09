@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Audio Ingestion Tool for LM Studio Plugin
- * 
+ *
  * Provides offline audio transcription using whisper.cpp (via CLI).
  */
 
@@ -54,7 +54,7 @@ export async function transcribeAudio(
     // BUG-FIX: Provide clear installation instructions for whisper.cpp
     return {
       success: false,
-      error: 'whisper.cpp is not installed or not in PATH. To install: 1) Download from https://github.com/ggerganov/whisper.cpp, 2) Build with make, 3) Ensure whisper binary is in PATH. Alternatively, use the sandbox tool to run transcription in a Docker container with whisper pre-installed.',
+      error: 'whisper-cli.exe not found in node_modules/whisper-bin/ or system PATH. Please place whisper-cli.exe in node_modules/whisper-bin/ or add it to your system PATH.',\n    // Fallback: Use bundled binary directly\n    const bundledPath = path.resolve(__dirname, '..', 'node_modules', 'whisper-bin', 'whisper-cli.exe');
       duration_ms: Date.now() - startTime
     };
   }
@@ -73,7 +73,7 @@ export async function transcribeAudio(
   const outputDir = path.dirname(resolvedPath);
   
   return new Promise((resolve) => {
-    execFile('whisper', [
+    execFile(path.resolve(__dirname, '..', 'node_modules', 'whisper-bin', 'whisper-cli.exe'), [
       resolvedPath,
       '--model', model,
       '--language', language,
@@ -112,3 +112,15 @@ export async function transcribeAudio(
     });
   });
 }
+
+// Cross-reference: audio.ts can be used by video.ts for audio extraction
+export const extractAudioFromVideo = async (videoPath: string, outputPath: string): Promise<{ success: boolean; error?: string }> => {
+  const ffmpegPath = path.resolve(__dirname, '..', '..', 'node_modules', 'ffmpeg', 'ffmpeg.exe');
+  return new Promise((resolve) => {
+    execFile(ffmpegPath, [
+      '-y', '-i', videoPath, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', outputPath
+    ], { timeout: 60000 }, (error) => {
+      resolve({ success: !error, error: error?.message });
+    });
+  });
+};

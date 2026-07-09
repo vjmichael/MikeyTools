@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Code Execution Tool for LM Studio Plugin
  * 
  * Executes code in Python, Bash, or Node.js with timeout, output capture, and truncation.
@@ -8,6 +8,7 @@
 import { execFile } from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
+import { truncateOutput } from './truncator';
 
 interface ExecuteResult {
   stdout: string;
@@ -153,11 +154,4 @@ export async function executeCode(
       }
     });
   });
-}
-
-function truncateOutput(output: string, maxLength: number = MAX_OUTPUT_LENGTH): string {
-  if (output.length <= maxLength) {
-    return output;
-  }
-  return output.substring(0, maxLength) + `\n...[truncated, ${output.length - maxLength} bytes omitted]`;
 }

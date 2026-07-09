@@ -1,4 +1,5 @@
-﻿import * as cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
+import { truncateOutput } from './truncator';
 
 // Use native fetch (Node.js 18+) instead of node-fetch
 // This eliminates the deprecated node-fetch dependency
@@ -35,6 +36,12 @@ export async function webSearch(options: WebSearchOptions): Promise<string> {
   } else {
     return `Unknown search type: '${searchType}'. Use 'web', 'news', or 'images'.`;
   }
+}
+
+interface SearchResult {
+  title: string;
+  url: string;
+  snippet: string;
 }
 
 async function searchWeb(
@@ -99,7 +106,7 @@ async function searchWeb(
     output += `      Source: ${source}\n`;
     const snippet = r.snippet.trim();
     if (snippet.length > 200) {
-      output += `      Snippet: ${snippet.substring(0, 197)}...\n`;
+      output += `      Snippet: ${truncateOutput(snippet, 197)}\n`;
     } else {
       output += `      Snippet: ${snippet}\n`;
     }
@@ -144,7 +151,7 @@ async function searchNews(query: string, maxResults: number): Promise<string> {
       output += `      URL: ${r.url}\n`;
       const snippet = (r.snippet || '').trim();
       if (snippet.length > 200) {
-        output += `      Snippet: ${snippet.substring(0, 197)}...\n\n`;
+        output += `      Snippet: ${truncateOutput(snippet, 197)}\n\n`;
       } else {
         output += `      Snippet: ${snippet}\n\n`;
       }
@@ -215,18 +222,8 @@ export async function fetchWebContent(url: string, maxLength: number = 10000): P
     let text = $('body').text();
     text = text.replace(/\s+/g, ' ').trim();
 
-    if (text.length > maxLength) {
-      text = text.substring(0, maxLength) + '... [content truncated]';
-    }
-
-    return text;
+    return truncateOutput(text, maxLength);
   } catch (e) {
     return `Error fetching URL: ${e instanceof Error ? e.message : String(e)}`;
   }
-}
-
-interface SearchResult {
-  title: string;
-  url: string;
-  snippet: string;
 }

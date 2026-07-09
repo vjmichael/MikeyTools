@@ -145,7 +145,7 @@ export async function analyzeVideo(options: VideoOptions): Promise<VideoAnalysis
       frames: [],
       ocr_results: [],
       audio_transcript: null,
-      error: 'ffmpeg is not installed or not in PATH. Please install ffmpeg first.'
+      error: 'ffmpeg.exe not found in node_modules/ffmpeg/ or system PATH. Please place ffmpeg.exe in node_modules/ffmpeg/ or add it to your system PATH.'
     };
   }
   if (!deps.python) {
@@ -247,4 +247,9 @@ export async function analyzeVideo(options: VideoOptions): Promise<VideoAnalysis
       error: `Failed to analyze video: ${error.message}`
     };
   }
+
+// Cross-reference: video.ts can use audio.ts for audio extraction
 }
+
+// Cross-reference: video.ts can use audio.ts for audio extraction
+export { extractAudioFromVideo } from './audio';

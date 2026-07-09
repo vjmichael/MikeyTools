@@ -1,6 +1,7 @@
-﻿import * as fs from 'fs';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { truncateOutput } from './truncator';
 
 
 // ===================== CAT ABILITIES =====================
@@ -124,8 +125,8 @@ export async function cat(
   const maxBytes = options.maxBytes || 50 * 1024 * 1024; // Default: 50MB for cat
   const streaming = options.streaming !== false; // Default: true
   const silent = options.silent || false;
-  
-  // Resolve path (follow symlinks if requested)
+
+// Resolve path (follow symlinks if requested)
   let resolvedPath: string;
   try {
     resolvedPath = resolvePath(filePath, followSymlinks);
@@ -264,9 +265,7 @@ export async function cat(
       truncated: truncated,
       maxBytesLimit: maxBytes,
       streamingUsed: streaming && fileSize > 1024 * 1024,
-      contentPreview: content.length > 10000
-        ? content.substring(0, 10000) + '\n\n... (truncated, total ' + content.length + ' chars. Adjust maxBytes to read more.)'
-        : content,
+      contentPreview: truncateOutput(content, 10000),
       contentHash: fileHash,
       note: isBinaryDocument(resolvedPath) && encoding === 'base64'
         ? 'This is a binary document file. Content returned as base64-encoded. Use specialized tools for full content.'
@@ -330,9 +329,7 @@ export async function catMultiple(
     filesFailed: results.filter(r => !r.success).length,
     results: results,
     totalContentLength: Buffer.byteLength(totalContent, 'utf8'),
-    contentPreview: totalContent.length > 10000
-      ? totalContent.substring(0, 10000) + '\n\n... (truncated, total ' + totalContent.length + ' chars)'
-      : totalContent,
+    contentPreview: truncateOutput(totalContent, 10000),
     message: results.filter(r => !r.success).length > 0
       ? `Processed ${results.length} files: ${results.filter(r => r.success).length} successful, ${results.filter(r => !r.success).length} failed.`
       : `Successfully processed ${results.length} files.`
@@ -715,9 +712,7 @@ export async function readFile(
       isBinaryDocument: isBinaryDocument(resolvedPath),
       truncated: result.truncated,
       maxBytesLimit: maxBytes,
-      contentPreview: result.content.length > 10000
-        ? result.content.substring(0, 10000) + '\n\n... (truncated, total ' + result.content.length + ' chars. Adjust maxBytes to read more.)'
-        : result.content,
+      contentPreview: truncateOutput(result.content, 10000),
       contentHash: fileHash,
       note: result.note || undefined
     }, null, 2);

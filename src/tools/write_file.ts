@@ -1,6 +1,92 @@
-﻿import * as fs from 'fs';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { truncateOutput } from './truncator';
+
+// ===================== FILE TYPE SUPPORT =====================
+
+export interface FileTypeConfig {
+  extensions: string[];
+  encoding: BufferEncoding;
+  isBinary: boolean;
+  description: string;
+}
+
+const FILE_TYPE_CONFIGS: Record<string, FileTypeConfig> = {
+  // Code files
+  'ts': { extensions: ['.ts', '.tsx'], encoding: 'utf8', isBinary: false, description: 'TypeScript' },
+  'js': { extensions: ['.js', '.jsx'], encoding: 'utf8', isBinary: false, description: 'JavaScript' },
+  'py': { extensions: ['.py', '.pyw'], encoding: 'utf8', isBinary: false, description: 'Python' },
+  'java': { extensions: ['.java'], encoding: 'utf8', isBinary: false, description: 'Java' },
+  'cpp': { extensions: ['.cpp', '.cxx', '.cc', '.c++'], encoding: 'utf8', isBinary: false, description: 'C++' },
+  'c': { extensions: ['.c'], encoding: 'utf8', isBinary: false, description: 'C' },
+  'h': { extensions: ['.h', '.hpp', '.hxx'], encoding: 'utf8', isBinary: false, description: 'C/C++ Header' },
+  'cs': { extensions: ['.cs'], encoding: 'utf8', isBinary: false, description: 'C#' },
+  'go': { extensions: ['.go'], encoding: 'utf8', isBinary: false, description: 'Go' },
+  'rs': { extensions: ['.rs'], encoding: 'utf8', isBinary: false, description: 'Rust' },
+  'swift': { extensions: ['.swift'], encoding: 'utf8', isBinary: false, description: 'Swift' },
+  'kt': { extensions: ['.kt', '.kts'], encoding: 'utf8', isBinary: false, description: 'Kotlin' },
+  'rb': { extensions: ['.rb', '.rbw'], encoding: 'utf8', isBinary: false, description: 'Ruby' },
+  'php': { extensions: ['.php', '.php3', '.php4', '.php5'], encoding: 'utf8', isBinary: false, description: 'PHP' },
+  'html': { extensions: ['.html', '.htm'], encoding: 'utf8', isBinary: false, description: 'HTML' },
+  'css': { extensions: ['.css'], encoding: 'utf8', isBinary: false, description: 'CSS' },
+  'xml': { extensions: ['.xml'], encoding: 'utf8', isBinary: false, description: 'XML' },
+  'json': { extensions: ['.json'], encoding: 'utf8', isBinary: false, description: 'JSON' },
+  'yaml': { extensions: ['.yaml', '.yml'], encoding: 'utf8', isBinary: false, description: 'YAML' },
+  'toml': { extensions: ['.toml'], encoding: 'utf8', isBinary: false, description: 'TOML' },
+  'ini': { extensions: ['.ini', '.cfg', '.conf'], encoding: 'utf8', isBinary: false, description: 'INI/Config' },
+  'sql': { extensions: ['.sql'], encoding: 'utf8', isBinary: false, description: 'SQL' },
+  'sh': { extensions: ['.sh', '.bash', '.zsh'], encoding: 'utf8', isBinary: false, description: 'Shell Script' },
+  'ps1': { extensions: ['.ps1', '.psd1', '.psm1'], encoding: 'utf8', isBinary: false, description: 'PowerShell' },
+  'md': { extensions: ['.md', '.markdown'], encoding: 'utf8', isBinary: false, description: 'Markdown' },
+  'txt': { extensions: ['.txt', '.text'], encoding: 'utf8', isBinary: false, description: 'Text' },
+  'csv': { extensions: ['.csv'], encoding: 'utf8', isBinary: false, description: 'CSV' },
+  'svg': { extensions: ['.svg'], encoding: 'utf8', isBinary: false, description: 'SVG' },
+  'pdf': { extensions: ['.pdf'], encoding: 'binary', isBinary: true, description: 'PDF' },
+  'docx': { extensions: ['.docx'], encoding: 'binary', isBinary: true, description: 'DOCX' },
+  'pptx': { extensions: ['.pptx'], encoding: 'binary', isBinary: true, description: 'PPTX' },
+  'xlsx': { extensions: ['.xlsx'], encoding: 'binary', isBinary: true, description: 'XLSX' },
+  'png': { extensions: ['.png'], encoding: 'binary', isBinary: true, description: 'PNG' },
+  'jpg': { extensions: ['.jpg', '.jpeg'], encoding: 'binary', isBinary: true, description: 'JPEG' },
+  'gif': { extensions: ['.gif'], encoding: 'binary', isBinary: true, description: 'GIF' },
+  'webp': { extensions: ['.webp'], encoding: 'binary', isBinary: true, description: 'WebP' },
+  'mp4': { extensions: ['.mp4'], encoding: 'binary', isBinary: true, description: 'MP4' },
+  'avi': { extensions: ['.avi'], encoding: 'binary', isBinary: true, description: 'AVI' },
+  'mov': { extensions: ['.mov'], encoding: 'binary', isBinary: true, description: 'MOV' },
+  'mp3': { extensions: ['.mp3'], encoding: 'binary', isBinary: true, description: 'MP3' },
+  'wav': { extensions: ['.wav'], encoding: 'binary', isBinary: true, description: 'WAV' },
+  'zip': { extensions: ['.zip'], encoding: 'binary', isBinary: true, description: 'ZIP' },
+  'tar': { extensions: ['.tar'], encoding: 'binary', isBinary: true, description: 'TAR' },
+  'gz': { extensions: ['.gz', '.tgz'], encoding: 'binary', isBinary: true, description: 'GZIP' },
+  'default': { extensions: [], encoding: 'utf8', isBinary: false, description: 'Default' }
+};
+
+function getFileTypeConfig(filePath: string): FileTypeConfig {
+  const ext = path.extname(filePath).toLowerCase();
+  for (const [key, config] of Object.entries(FILE_TYPE_CONFIGS)) {
+    if (key !== 'default' && config.extensions.includes(ext)) {
+      return config;
+    }
+  }
+  return FILE_TYPE_CONFIGS.default;
+}
+
+function getSupportedExtensions(): string[] {
+  const extensions = new Set<string>();
+  for (const config of Object.values(FILE_TYPE_CONFIGS)) {
+    for (const ext of config.extensions) {
+      extensions.add(ext);
+    }
+  }
+  return Array.from(extensions).sort();
+}
+
+function formatSupportedExtensions(): string {
+  const extensions = getSupportedExtensions();
+  const first20 = extensions.slice(0, 20).join(', ');
+  const remainder = extensions.length > 20 ? `... and ${extensions.length - 20} more` : '';
+  return first20 + (remainder ? ' ' + remainder : '');
+}
 
 // ===================== WRITE FILE =====================
 
@@ -54,9 +140,7 @@ export async function writeFile(
     return JSON.stringify({
       would_write: true,
       path: resolvedPath,
-      new_content_preview: content.length > 1000 
-        ? content.substring(0, 1000) + `\n... (truncated, total ${content.length} chars)`
-        : content,
+      new_content_preview: truncateOutput(content, 1000),
       size_bytes: sizeBytes,
       content_hash: computeHash(content),
       file_exists: fs.existsSync(resolvedPath),
@@ -139,9 +223,7 @@ export async function writeFileAppend(
     return JSON.stringify({
       would_append: true,
       path: resolvedPath,
-      appended_content_preview: content.length > 1000 
-        ? content.substring(0, 1000) + `\n... (truncated, total ${content.length} chars)`
-        : content,
+      appended_content_preview: truncateOutput(content, 1000),
       existing_size: Buffer.byteLength(existingContent, encoding as BufferEncoding),
       resulting_size: Buffer.byteLength(newContent, encoding as BufferEncoding),
       file_exists: fs.existsSync(resolvedPath),

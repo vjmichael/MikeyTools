@@ -248,7 +248,19 @@ export async function editFile(
 
     // Apply operations in order to an in-memory copy
     let modifiedLines = [...lines];
-    for (const op of operations) {
+    // Define normalizedOps for delete operations
+    const normalizedOps = operations.map(op => {
+      if (op.type === 'delete') {
+        return {
+          ...op,
+          startLine: op.startLine || op.line,
+          endLine: op.endLine || op.line
+        };
+      }
+      return op;
+    });
+    const ops = normalizedOps || operations;
+    for (const op of ops) {
       if (!op.type) {
         return JSON.stringify({
           success: false,

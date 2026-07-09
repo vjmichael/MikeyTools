@@ -18,20 +18,39 @@ const execFileAsync = promisify(execFile);
  * Checks if a command is available on the system PATH.
  * Used by docker_ops.ts, git_ops.ts, github_ops.ts, audio.ts, and sandbox.ts.
  */
+/**
+ * Checks if a command is available on the system PATH.
+ * Used by docker_ops.ts, git_ops.ts, github_ops.ts, audio.ts, and sandbox.ts.
+ */
 export async function isCommandAvailable(cmd: string): Promise<boolean> {
+  // Check system PATH first
   try {
     await execFileAsync(cmd, ['--version']);
     return true;
   } catch {
-    return false;
+    // Fall through to node_modules check
   }
+  
+  // Check exact bundled binary paths
+  const bundledPaths = [
+    path.join(__dirname, '..', 'node_modules', 'ffmpeg', 'ffmpeg.exe'),
+    path.join(__dirname, '..', 'node_modules', 'whisper-bin', 'whisper-cli.exe'),
+    path.join(__dirname, '..', 'node_modules', '.ffmpeg-*', 'ffmpeg.exe')
+  ];
+  
+  for (const p of bundledPaths) {
+    if (fs.existsSync(p)) {
+      try {
+        await execFileAsync(p, ['--version']);
+        return true;
+      } catch {
+        continue;
+      }
+    }
+  }
+  
+  return false;
 }
-
-// ===================== FILE FINDING =====================
-
-export interface FindFilesOptions {
-  /** Glob pattern to match (e.g., '*.py', '*.js,*.ts,*.tsx') */
-  pattern: string;
   /** Maximum directory depth to search (default: unlimited) */
   maxDepth?: number;
   /** Current recursion depth (internal use) */

@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as csv from 'csv-stringify/sync';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 import PDFDocument from 'pdfkit';
+import { truncateOutput } from './truncator';
 import pdfParse from 'pdf-parse';
 
 // ===================== FILE CREATION =====================
@@ -26,7 +27,10 @@ export async function createFile(
 ): Promise<string> {
   let outputPath: string;
 
-  if (options.outputDir) {
+  // Robust path handling: respect absolute paths passed as filename
+  if (path.isAbsolute(filename)) {
+    outputPath = filename;
+  } else if (options.outputDir) {
     outputPath = path.join(options.outputDir, filename);
   } else {
     outputPath = path.join(os.homedir(), filename);
@@ -617,6 +621,7 @@ export interface SearchOptions {
   sortBy?: string;
   caseSensitive?: boolean;
   maxResults?: number;
+  maxOutputLength?: number;
   showDetails?: boolean;
 }
 
@@ -690,7 +695,9 @@ export async function searchDirectory(
     sorted = sorted.slice(0, maxResults);
 
     // Format
-    const output = formatResults(sorted, options.showDetails !== false);
+    let output = formatResults(sorted, options.showDetails !== false);
+    // Use unified truncator to prevent token limit exceeded
+    output = truncateOutput(output, { maxChars: options.maxOutputLength || 50000 });
     return output;
 
   } catch (e) {
