@@ -17,7 +17,7 @@ import { grep } from './tools/grep';
 import { runCommand } from './tools/terminal';
 import { executeCode } from './tools/exec';
 import { applyPatch } from './tools/patch';
-import { visualQuestionAnswering } from './tools/vision';
+import { visualQuestionAnsweringViaLmStudio, analyzeVideoViaLmStudio } from './tools/vision_api';
 import { memorySet, memoryGet, memoryList, memoryDelete, memoryLogAppend, memoryLogTail } from './tools/memory';
 import { indexBuild, indexQuery, indexUpdate } from './tools/index';
 import { validateSchema } from './tools/validate';
@@ -57,7 +57,7 @@ import { gitStatus, gitDiff, gitLog, gitBlame } from './tools/git_ops';
 import { stubTool as listFilesInCommit, stubTool as readFileFromCommit } from './tools/git_read';
 import { runBackgroundTask, checkTaskStatus, stopTask } from './tools/background';
 import { transcribeAudio } from './tools/audio';
-import { describeImage } from './tools/image_desc';
+import { describeImageViaLmStudio } from './tools/vision_api';
 // github_ops.ts is truncated - using stubs
 import { analyzeVideo } from './tools/video';
 import { findSymbol, getReferences } from './tools/code_intel';
@@ -411,9 +411,9 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
 
   const createFileTool = tool({
     name: "create_file",
-    description: "Create a file in various formats (txt, md, json, csv, html, docx, pdf).",
+    description: "Create a file. The AI determines the appropriate file type based on the filename and context. Supported special formats: txt, md, json, csv, html, docx, pdf (these get formatted). For other types (yaml, xml, toml, ini, sh, py, js, ts, go, rs, etc.), the content is written as-is. Use the file extension to indicate the type.",
     parameters: {
-      file_type: z.enum(["txt", "md", "json", "csv", "html", "docx", "pdf"]).describe("File format"),
+      file_type: z.string().describe("File type/format. For special formatting use: txt, md, json, csv, html, docx, pdf. For other types, use the file extension (e.g., yaml, xml, toml, ini, sh, py, js, ts, go, rs, java, c, cpp, etc.). The AI should choose based on the filename extension and content context."),
       filename: z.string().describe("Output filename"),
       content: z.string().optional().describe("Content text (for txt, md, html, docx, pdf)"),
       title: z.string().optional().describe("Document title (for docx, pdf, html, md)"),
@@ -1080,12 +1080,12 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
 
   const describeImageTool = tool({
     name: "describe_image",
-    description: "Describe the content of an image using a local vision model (BLIP). Returns a text description, not just OCR.",
+    description: "Describe the content of an image using the loaded AI model (requires vision-capable model). Returns a text description, not just OCR. Works with Qwen3.6-35B-A3B, Qwen2.5-VL, LLaVA, or any vision-capable model in LM Studio. For best results, load Qwen2.5-VL-3B or Qwen2.5-VL-7B for native video support.",
     parameters: {
       file_path: z.string().describe("Path to the image file")
     } as unknown as Record<string, { parse: (input: any) => any }>,
     implementation: async (params, ctx) => {
-      const result = await describeImage(params.file_path);
+      const result = await describeImageViaLmStudio(params.file_path);
       return JSON.stringify(result, null, 2);
     }
   });
@@ -1301,14 +1301,14 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
   
   const analyzeVideoTool = tool({
     name: "analyze_video",
-    description: "Analyze a video file by extracting visual chunks (frames) and full audio transcripts. Returns structured data for AI consumption.",
+    description: "Analyze a video file using native video support (Qwen2.5-VL) or smart key-frame sampling (fallback). Returns structured data for AI consumption. For best results, load Qwen2.5-VL-3B or Qwen2.5-VL-7B for native video processing (no frame extraction). Works with Qwen3.6-35B-A3B, Qwen2.5-VL, LLaVA, or any vision-capable model in LM Studio.",
     parameters: {
       file_path: z.string().describe("Path to the video file"),
       interval: z.number().default(5).describe("Seconds between visual frames (default: 5)"),
       question: z.string().optional().describe("Optional question to answer based on the analysis")
     } as unknown as Record<string, { parse: (input: any) => any }>,
     implementation: wrapWithTruncation(async (params, ctx) => {
-      const result = await analyzeVideo(params.file_path, Math.ceil(params.interval * 10), params.question);
+      const result = await analyzeVideoViaLmStudio(params.file_path, Math.ceil(params.interval * 1000), params.question);
       return JSON.stringify(result, null, 2);
     })
   });
@@ -1382,14 +1382,14 @@ export async function toolsProvider(ctl: ToolsProviderController): Promise<Tool[
   
   const visualQuestionAnsweringTool = tool({
     name: "visual_question_answering",
-    description: "Answer specific questions about an image using BLIP-2. Supports yes/no, object detection, and reasoning.",
+    description: "Answer specific questions about an image using the loaded AI model (requires vision-capable model). Works with Qwen3.6-35B-A3B, Qwen2.5-VL, LLaVA, or any vision-capable model in LM Studio.",
     parameters: {
       file_path: z.string().describe("Path to the image file"),
       question: z.string().describe("The question to answer about the image")
     } as unknown as Record<string, { parse: (input: any) => any }>,
     implementation: async (params, ctx) => {
-      const result = await visualQuestionAnswering(params.file_path, params.question);
-      return JSON.stringify({ success: true, answer: result }, null, 2);
+      const result = await visualQuestionAnsweringViaLmStudio(params.file_path, params.question);
+      return JSON.stringify({ success: result.success, answer: result.answer || result.error }, null, 2);
     }
   });
   tools.push(visualQuestionAnsweringTool);
