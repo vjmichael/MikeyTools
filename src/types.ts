@@ -157,8 +157,8 @@ export interface ReadImageArgs {
 
 // ===================== SANDBOX =====================
 export interface CheckEnvArgs {
-  check_docker?: boolean;
-  check_wsl2?: boolean;
+  check_docker?: boolean; // Deprecated - Docker no longer supported
+  check_wsl2?: boolean; // Deprecated - WSL2 no longer supported
   check_pwsh?: boolean;
 }
 
