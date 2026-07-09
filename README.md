@@ -1,36 +1,31 @@
-# Universal Toolkit - LM Studio Plugin
+# Mike's Multi-Tool Kit (mikeystoolkit) - LM Studio Plugin
 
-***This tool is a work in progress. Some tools may not function. There is a known JSON breaking issue that I am aware and trying to fix.***
+A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence.
 
-A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, and multimodal AI capabilities.
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## 🚨 Prerequisites & Required Software (READ FIRST!)
 
-Before running or installing this plugin in modern LM Studio, you **must have all of the following** installed on your machine! Without these exact dependencies, features will fail silently or crash! 
+Before running or installing this plugin in modern LM Studio, you **must have all of the following** installed on your machine!
 
 ### Core Runtime Requirements
-1.  **PowerShell 7+ (*Windows ONLY*)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest). This plugin requires PowerShell modern module loading capabilities; legacy Windows PowerShell is NOT compatible.
-2.  **Node.js v18+** ([Download](https://nodejs.org/)) — Runtime environment for TypeScript compilation and npm packages! 
-
-### Sandbox / Execution Environment (Choose ONE)
-3a. **WSL *(Windows Subsystem for Linux)*** REQUIRED fallback: Run `wsl --install` in PowerShell as Administrator, then restart your machine!
-3b. **Docker Desktop** *Optional but recommended alternative to WSL*: Download from [docker.com](https://www.docker.com/) and enable 'WSL 2 backend' if you have it installed too! 
+1.  **PowerShell 7+ (*Windows ONLY*)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest)
+2.  **Node.js v18+** ([Download](https://nodejs.org/)) — Runtime environment for TypeScript compilation and npm packages!
 
 ### Feature-Specific Dependencies
-4.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation. Install via official installer with "Add to PATH" checked!
-5.  **Headless Chromium / Chrome for Testing** *Required* — Needed by browser automation capabilities. After downloading, set environment variable `PUPPETEER_EXECUTABLE_PATH` pointing at your extracted binary path!
-6.  **Hugging Face CLI** — Required for downloading AI model weights (`blip2-opt-2.7b`). Install via `pip install huggingface_hub` (note: use `hf` command, not deprecated `huggingface-cli`)
-
-> ### Project Dependencies (`package.json`)
-> This plugin relies heavily on external TypeScript packages (like `cheerio`, `docx`). **You do not need to install these manually!** By running the setup commands below in terminal, npm will automatically download and configure every necessary dependency from our project package.json.
+3.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation
+4.  **Headless Chromium / Chrome for Testing** — Needed by browser automation capabilities
+5.  **Hugging Face CLI** — Required for downloading AI model weights (`blip2-opt-2.7b`)
 
 ---
 
 ## Features 
 
 ### 🔍 Advanced Directory Search
-- Glob pattern matching (`*.py`, `config*`, etc.) 
-- Case-insensitive search  
+- Glob pattern matching (`*.py`, `config*`, etc.)
+- Case-insensitive search
 - Filter by file extension, size, and date
 - Search within file contents (grep-style)
 - Sort by name, size, date, or type
@@ -41,206 +36,239 @@ Before running or installing this plugin in modern LM Studio, you **must have al
 - Image search with URLs
 - Configurable results count and region
 
-### 📄 File Creation 
-- **TXT** - Plain text files  
-- **MD** - Markdown documents
-- **JSON** - Structured data files
-- **CSV** - Spreadsheets
-- **HTML** - Styled web pages
-- **DOCX** - Word documents (with headings and paragraphs)
-- **PDF** - PDF documents (with styled titles)
+### 📄 File Operations (NO EXTENSION RESTRICTIONS)
 
-### 📖 File Reading 
-- **TXT/MD** - Plain text with encoding detection  
-- **JSON** - Pretty-printed with size info
-- **CSV** - Formatted table view with column alignment  
-- **HTML** - Extracts clean text, titles, and links
-- **DOCX** - Extracts text, paragraphs, and metadata 
-- **PDF** - Extracts text from all pages
+**Write to ANY file** - AI model decides appropriate extensions:
+- `write_file` - Overwrite entire file
+- `write_file_append` - Append to file
+- `create_file` - Create files with any extension
 
---- 
+**Read ANY file** - Content-based detection (not extension-based):
+- `read_file` - Read files with auto-detection
+- `cat` - Cat-like behavior for any file
+- `cat_multiple` - Read multiple files
+
+**Edit ANY file** - Flexible editing:
+- `edit_file` - Complex operations (replace/insert/delete)
+- `replace_text_in_file` - Simple find-and-replace
+- `insert_at_line` - Insert at specific line
+- `delete_lines_in_file` - Delete line ranges
+
+### 🧠 JSON Repair (Layer 2)
+Automatic JSON syntax repair for malformed tool-call arguments:
+- Removes trailing commas
+- Balances brackets/braces
+- Fixes escape sequences
+- Wraps partial JSON
+
+### 📝 Scratchpad (Layer 1)
+Incremental JSON building for complex structures:
+- `scratchpad_init` - Initialize scratchpad
+- `scratchpad_write` - Overwrite scratchpad
+- `scratchpad_append` - Append to scratchpad
+- `scratchpad_read` - Read scratchpad (with truncation)
+- `scratchpad_validate` - Validate JSON
+- `scratchpad_edit` - Fix syntax errors
+- `scratchpad_commit` - Commit and clear (with truncation)
+- `scratchpad_clear` - Clear without returning
+
+### 📖 File Reading
+- Auto-detects text vs binary based on content
+- Handles UTF-8, UTF-16, ASCII, and binary files
+- Streaming for large files (>1MB)
+- Line range filtering
+
+### 🖼️ Image Captioning & VQA
+- `describe_image` - Describe images using BLIP-2
+- `visual_question_answering` - Answer questions about images
+
+### ⚠️ Deprecated: Git Tools
+**Git operations have been deprecated** (2025-07-09) due to sandbox security constraints.
+The following tools now return deprecation messages:
+- `git_status`
+- `git_diff`
+- `git_log`
+- `git_blame`
+- `git_list_files`
+- `git_read_file`
+- All GitHub tools (`github_push`, `github_create_pr`, etc.)
+
+**Alternative:** Use LM Studio's native Git interface for Git operations.
+
+---
 
 ## Installation
 
 ### Prerequisites
-- Node.js 18+ ([Download](https://nodejs.org/))  
-- npm (comes with Node.js) 
+- Node.js 18+ ([Download](https://nodejs.org/))
+- npm (comes with Node.js)
 - Python Latest Version
 - Hugging Face CLI (`pip install huggingface_hub`)
 
 ### Verify Installation
-```bash
-node --version   # Should be v18.0.0 or higher 
-npm --version    # Should be 9.0.0 or higher   
+```powershell
+node --version   # Should be v18.0.0 or higher
+npm --version    # Should be 9.0.0 or higher
 ```
 
-### Cross-Platform Setup 
-
-#### Windows 10/11 (PowerShell 7+)  
+### Setup (Windows PowerShell 7+)
 ```powershell
-# Navigate to plugin directory 
-cd "c:\Users\UserMN4312\toolkit/lm-studio-plugin"  
+# Navigate to plugin directory
+cd "C:\Users\UserMN4312\toolkit\lm-studio-plugin"
 
-# Install dependencies automatically via package.json: 
+# Install dependencies automatically
 npm install --legacy-peer-deps
 
 # Download BLIP-2 model weights (required for describe_image & visual_question_answering)
 hf download Xenova/blip2-opt-2.7b --local-dir ./blip2-opt-2.7b
 
-# Build TypeScript into dist/index.js for LM Studio consumption:   
-npm run build  
-```
-
-#### Linux (Ubuntu/Debian - bash)
-```bash
-cd /path/to/toolkit/lm-studio-plugin 
-
-npm install --legacy-peer-deps  
-
-hf download Xenova/blip2-opt-2.7b --local-dir ./blip2-opt-2.7b
-
-npm run build 
-```
-
-### Troubleshooting
-- If `npm install` fails with peer dependency errors: `npm install --legacy-peer-deps`  
-- If Node.js is not recognized on Windows, restart PowerShell or run: `refreshenv`
-- For Python dependencies after installing everything else above: `pip install huggingface_hub`
-
---- 
-
-## 📥 Installing This Plugin in Modern LM Studio  
-
-Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! Here is how to connect this toolset properly:
-
-1. Open your `mcp.json` config file from the **"Program"** tab → click "Install" → select "Edit mcp.json". This opens an in-app editor for LM Studio's MCP server definitions  
-2. Add a new entry under `"mcpServers"` pointing to our compiled plugin script (`dist/index.js`) like this: 
-
-```json
-{ 
-  "mcpServers": {    
-    "lm-studio-plugin": {      
-      "command": "/path/to/node",   # or full path on Windows! e.g., C:\Program Files\nodejs\node.exe       
-      "args": ["C:/Users/UserMN4312/toolkit/lm-studio-plugin/dist/index.js"]
-    }  
-  } 
-}
-```
-
-> ⚠️ **Windows Users:** Replace `/path/to/node` with your actual Node executable path (e.g., `C:\Program Files\nodejs\node.exe`)! 
-
----
-## Second Method (Preferred Method)
-
-1. In the tool plugin directory, open up terminal. On Windows, prese the Window's Key ⊞ + X. A menu will open up and choose the Powershell. 
-Navigate to the tool plugin directory. 
-2. Now enter the command "npm insall" to install the dependencies. Then type the command "npm run build." This should build the javascript (.js) 3. folder called dist. If you ever need to do a clean install, use the command "npm run clean" 
-4. Then run the command "lms dev --install." You can run "lms dev" but pressing ctrl+c wills order a stop and your plugin will disappear from the LM Studio's Integration panel on the right.
-
-```
-npm install
+# Build TypeScript into dist/index.js
 npm run build
+
+# Install plugin in LM Studio
 lms dev --install
 ```
+
 ---
 
-## Usage Examples  
+## Usage Examples
 
-### Web Search 
+### File Operations (Any Extension)
+```typescript
+// Write to any file - AI decides extension
+write_file({path: "data.json", content: '{"key": "value"}'})
+write_file({path: "config.yaml", content: "key: value"})
+write_file({path: "script.ts", content: "const x = 1;"})
+
+// Append to any file
+write_file_append({path: "logs.txt", content: "new log entry\n"})
+
+// Create file with any extension
+create_file({file_type: "json", filename: "output.json", content: '{"data": []}'})
+```
+
+### JSON Repair (Layer 2)
+```typescript
+// Auto-repairs malformed JSON
+json_repair({json_string: '{"key": "value",}'})
+// Returns: {"success": true, "repaired": "{\"key\": \"value\"}", "repairs_applied": ["removed_trailing_commas"]}
+```
+
+### Scratchpad (Layer 1)
+```typescript
+// Initialize scratchpad
+scratchpad_init()
+
+// Build complex JSON incrementally
+scratchpad_write({content: '{"users": ['})
+scratchpad_append({content: '{"name": "John"},'})
+scratchpad_append({content: '{"name": "Jane"}'})
+scratchpad_append({content: ']}'})
+
+// Validate before committing
+scratchpad_validate()
+
+// Commit and get JSON (with truncation if > 8000 chars)
+scratchpad_commit()
+```
+
+### Web Search
 ```typescript
 // Web search with DuckDuckGo
-web_search({  
-  query: "python tutorial",  
-  engine: "duckduckgo",   
-  max_results: 10,    
+web_search({
+  query: "python tutorial",
+  engine: "duckduckgo",
+  max_results: 10,
   search_type: "web",
-  region: "us-en",     
-  safesearch: "moderate", 
+  region: "us-en",
+  safesearch: "moderate",
   language: "en"
 })
 
 // News search
-web_search({ query: "AI news", search_type: "news"}) 
-
-// Image search  
-web_search({query:"cats",search_type:"images"} )
+web_search({query: "AI news", search_type: "news"})
 ```
 
-### Fetch Web Content 
-```typescript
-fetch_web_content({url:"https://example.com",max_length:10000})   
-```
-
-### Image Captioning & VQA
+### Image Captioning
 ```typescript
 // Describe an image using BLIP-2
-describe_image({ file_path: "C:/path/to/image.jpg" })
+describe_image({file_path: "C:/path/to/image.jpg"})
 
 // Answer questions about an image
-visual_question_answering({ 
-  file_path: "C:/path/to/image.jpg", 
-  question: "What color is the car?" 
+visual_question_answering({
+  file_path: "C:/path/to/image.jpg",
+  question: "What color is the car?"
 })
 ```
 
---- 
+---
 
-## New Tool Definitions (Advanced Features) 
+## Architecture
 
-These advanced tools require additional dependencies listed in the Prerequisites section above! 
+### Layer 1: Scratchpad (JSON Prevention)
+- Helps model build complex JSON incrementally
+- Prevents JSON syntax errors before they happen
+- Uses existing tools (write_file, cat, etc.) under the hood
+- Integrates with truncator.ts to prevent context overflow
 
-### `execute_code`  
-Execute code in Python, Bash, or Node.js with timeout and output capture. Requires WSL/Docker sandbox environment to function safely on Windows hosts!
+### Layer 2: JSON Repair (Automatic)
+- Fixes JSON errors after they happen
+- Safety net for all tool calls
+- Repairs: trailing commas, unbalanced brackets, escape sequences
+- Transparent to the model
 
-**Parameters:**
-| Parameter | Type | Required | Default | Description | 
-|-----------|------|----------|---------|-------------|
-| language | string | Yes | - | Language: python, bash, powershell, node  
-| code | string | No | - | Inline code (mutually exclusive with file_path)   
-| timeout_seconds | number | No | 15 | Timeout in seconds (max: 120)| 
-| cwd | string | No | - | Working directory inside sandboxed container!
+### Truncator Integration (Single Source of Truth)
+- **`DEFAULT_MAX_CHARS = 8000`** exported from `truncator.ts`
+- All outputs > 8000 chars are chunked
+- Prevents context overflow causing LM Studio faults
+- All tools use the same truncation limit via `wrapWithTruncation()`
 
-**Example:**
-```typescript  
-execute_code({language:"python",code:"print('Hello, World!')",timeout_seconds:30})   
+### Truncation Format
+```
+--- CHUNK 1/3 ---
+{...}
+
+[Output was X chars, split into Y chunks...]
 ```
 
---- 
+---
 
-### `memory_set` / `memory_get` / `memory_list` / `delete` 
-Persistent sql.js-backed key-value store & log management. **No extra dependencies needed** — runs entirely in pure JavaScript inside LM Studio environment out of the box! Supports WAL mode for better concurrency when multiple tools access memory simultaneously and persists data exactly like SQLite (full ACID compliance).
+## Security Notes
 
---- 
+### ⚠️ Critical Security Reality
 
-### Semantic Search Tools (`index_build`, `index_query`, `update`)
-Index directories semantically using sentence-transformers. Requires Python + numpy/sentence_transformers installed via pip from our feature-specific dependencies list above! 
+**LM Studio does NOT provide directory whitelisting sandboxing.**
 
-```typescript  
-// Build index over source code directory: 
-await index_build({directory:"./backend",extensions:"py,md,index_path":"./data/index"})
+- The AI model **CAN** code, run commands, and execute code in the development folder
+- The AI model **CAN** write to ANY file in the storage device
+- The AI model **CAN** execute malicious code
+- There is **NO default sandboxing** for working within a defined environment by LM Studio
 
-// Query for similar chunks later on user requests matching query text against indexed content
-index_query(query="race condition database writes",top_k=5)   
-```  
+### Why This Exists
+This is intentional to work with "abliterated" editions of AI models for **red teaming** and security research.
 
---- 
+### What This Toolkit DOES Provide
+- Atomic file writes (prevents data corruption)
+- Idempotency checks (avoids unnecessary writes)
+- Error handling and validation
+- Content-based file detection (not extension-based)
+- WASM sandboxing for code execution (QuickJS + Pyodide)
 
-### OCR & Image Processing (`read_image`)  
-Extracts text from images using Tesseract.js v5 (pure JS port of Tesseract 4+). No native binaries or system installs required! Just install Pillow + pytesseract via pip as shown in feature dependencies section above.
+### What This Toolkit DOES NOT Provide
+- WSL2/Docker sandboxing for code execution
+- File operation whitelisting
+- Protection against malicious file operations
+- Isolation from the host filesystem
+- Any security boundaries
 
-**Returns:**
-```json 
-{ "text":"extracted OCR result...", width:1920, height:1080, format:"png" }  
-```  
+### Security Responsibility
+**Users are responsible for:**
+- Monitoring AI model behavior
+- Restricting access to sensitive files
+- Running AI models in controlled environments
+- Understanding the risks of unfiltered AI execution
 
---- 
+---
 
-## Security Notes 
-
-- All new tools respect the existing allowed directories security model inside LM Studio sandboxing infrastructure!   
-- No unrestricted filesystem or shell escape hatches anywhere in plugin codebase - execute_code assumes trusted self-authored scripts only
-- `execute_code` runs strictly within isolated containers (WSL/Docker) — no direct host access possible from any tool call chain  
-
---- 
-*Last Updated: 2026-07-09*
-*Updated: Added BLIP-2 captioning & VQA support*
+*Last Updated: 2025-07-09*
+*Updated: Added git tools deprecation, truncator integration, single source of truth for max_output_length*

@@ -1,0 +1,37 @@
+mikeystoolkit
+Copyright 2026 Michael Vang
+
+This product includes software developed at
+LM Studio (https://lmstudio.ai/).
+
+Third-party components:
+- ffmpeg (https://ffmpeg.org/) - LGPL
+- whisper (https://github.com/openai/whisper) - MIT
+- @xenova/transformers (https://huggingface.co/xenova) - Apache 2.0
+- tesseract.js (https://github.com/naptha/tesseract.js) - Apache 2.0
+- sharp (https://github.com/lovell/sharp) - Apache 2.0
+- pdfkit (https://github.com/devongovod/pdfkit) - MIT
+- pdf-parse (https://github.com/modesty/pdf-parse) - MIT
+- cheerio (https://github.com/cheeriojs/cheerio) - MIT
+- js-yaml (https://github.com/nodeca/js-yaml) - MIT
+- ajv (https://github.com/ajv-validator/ajv) - MIT
+- jsonrepair (https://github.com/josdejong/jsonrepair) - Apache 2.0
+- playwright (https://github.com/microsoft/playwright) - Apache 2.0
+- pyodide (https://github.com/pyodide/pyodide) - MPL 2.0
+- sql.js (https://github.com/sql-js/sql.js) - MIT
+- csv-stringify (https://github.com/moll/csv-stringify) - MIT
+- docx (https://github.com/dolanmiu/docx) - MIT
+- fs-extra (https://github.com/jprichardson/node-fs-extra) - MIT
+- googleapis (https://github.com/googleapis/google-api-nodejs-client) - Apache 2.0
+- zod (https://github.com/colinhacks/zod) - MIT
+- jszip (https://github.com/Stuk/jszip) - MIT
+- @jitl/quickjs-wasmfile-release-sync (https://github.com/jitl/quickjs-wasmfile-release-sync) - MIT
+- @sebastianwessel/quickjs (https://github.com/sebastianwessel/quickjs) - MIT
+- ripgrep (https://github.com/BurntSushi/ripgrep) - MIT
+- @lmstudio/sdk (https://github.com/lmstudio-ai/lmstudio-js) - Apache 2.0
+- typescript (https://github.com/microsoft/TypeScript) - Apache 2.0
+- @types/* - MIT
+
+This product bundles compiled binaries:
+- ffmpeg.exe, ffplay.exe, ffprobe.exe (https://ffmpeg.org/)
+- whisper-cli.exe (https://github.com/openai/whisper)

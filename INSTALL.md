@@ -8,31 +8,57 @@ Before installing or running this plugin, you **must have all of the following**
 1.  **PowerShell 7+ (Windows ONLY)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest) if not already present. This plugin requires PowerShell's modern module loading capabilities; the legacy Windows PowerShell is NOT compatible.
 2.  **Node.js v18+** ([Download](https://nodejs.org/)) — The TypeScript compiler and runtime environment. npm comes bundled with Node.js automatically! 
 
-### Sandbox / Execution Environment (Choose ONE)
-3a. **WSL (Windows Subsystem for Linux)** *(REQUIRED fallback on Windows)*: 
-   - Open PowerShell 7+ as Administrator, then run: `wsl --install`  
-   - Restart your machine after installation completes
-
-3b. **Docker Desktop** *(Optional but recommended alternative to WSL)*:
-   - Download from [docker.com/products/docker-desktop](https://www.docker.com/) and install via their installer 
-   - Enable "WSL 2 backend" in Docker settings if you also have WSL installed 
-
-> ⚠️ **Note:** On Linux/macOS, standard bash/zsh terminals work natively without extra sandboxing requirements.
-
 ### Feature-Specific Dependencies
-4.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation. Install via official installer with "Add to PATH" checked!
-5.  **Hugging Face CLI** — Required for downloading AI model weights. Install via `pip install huggingface_hub`
-6.  **Headless Chromium / Chrome for Testing** ([Download](https://developer.chrome.com/blog/chrome-for-testing/)) — Required by Puppeteer/Playwright browser automation features. After downloading, set environment variable `PUPPETEER_EXECUTABLE_PATH` to point at your extracted binary path!
+3.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation. Install via official installer with "Add to PATH" checked!
+4.  **Hugging Face CLI** — Required for downloading AI model weights. Install via `pip install huggingface_hub`
+5.  **Headless Chromium / Chrome for Testing** ([Download](https://developer.chrome.com/blog/chrome-for-testing/)) — Required by Puppeteer/Playwright browser automation features. After downloading, set environment variable `PUPPETEER_EXECUTABLE_PATH` to point at your extracted binary path!
 
 ---
 
 ## 📦 Project Dependencies (`package.json`) 
 
-This plugin relies heavily on external TypeScript packages (like `cheerio`, `docx`, etc.). **You do not need to install these manually.** By running the installation commands below, npm will automatically download and configure every necessary dependency from our project's package.json!
+This plugin relies heavily on external TypeScript packages. **You do not need to install these manually.** By running the installation commands below, npm will automatically download and configure every necessary dependency from our project's package.json!
+
+### Runtime Dependencies (21 packages)
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `@sebastianwessel/quickjs` | ^3.0.0 | QuickJS WASM sandbox for JS execution |
+| `@jitl/quickjs-wasmfile-release-sync` | ^0.32.0 | QuickJS WASM binary file |
+| `pyodide` | ^314.0.2 | Python WASM sandbox for Python execution |
+| `@xenova/transformers` | ^2.17.0 | ML models (BLIP-2, etc.) |
+| `zod` | ^3.23.0 | Schema validation |
+| `playwright` | ^1.50.0 | Browser automation |
+| `cheerio` | ^1.1.0 | HTML parsing |
+| `csv-stringify` | ^6.5.2 | CSV generation |
+| `docx` | ^9.3.0 | DOCX file creation |
+| `pdfkit` | ^0.15.2 | PDF generation |
+| `pdf-parse` | ^1.1.1 | PDF reading |
+| `sharp` | ^0.33.5 | Image processing |
+| `tesseract.js` | ^5.1.1 | OCR (image text extraction) |
+| `ajv` | ^8.17.1 | JSON schema validation |
+| `js-yaml` | ^4.1.0 | YAML parsing |
+| `jsonrepair` | ^3.15.0 | JSON repair utilities |
+| `jszip` | ^3.10.1 | ZIP compression |
+| `sql.js` | ^1.14.1 | SQLite database |
+| `fs-extra` | ^11.3.0 | File system utilities |
+| `googleapis` | ^144.0.0 | Google API integration |
+| `ripgrep` | ^0.3.1 | Fast file search |
+
+### Dev Dependencies (8 packages)
+
+| Package | Purpose |
+|---------|---------|
+| `@lmstudio/sdk` | LM Studio plugin SDK |
+| `typescript` | TypeScript compiler |
+| `@types/node` | Node.js type definitions |
+| `@types/fs-extra` | fs-extra type definitions |
+| `@types/js-yaml` | js-yaml type definitions |
+| `@types/pdf-parse` | pdf-parse type definitions |
+| `@types/pdfkit` | pdfkit type definitions |
+| `@types/sql.js` | sql.js type definitions |
 
 ### Additional Software Dependencies (Required for Full Feature Set)
-
-The following additional software is required for media and advanced features:
 
 | Software | Purpose | Install Command | Notes |
 |----------|---------|----------------|-------|
@@ -40,7 +66,7 @@ The following additional software is required for media and advanced features:
 | **whisper.cpp** | Audio transcription (`transcribe_audio`) | https://github.com/ggerganov/whisper.cpp/releases | Add to PATH |
 | **@xenova/transformers** | BLIP-2 image captioning & VQA | `npm install @xenova/transformers` | Already in package.json |
 | **Hugging Face CLI** | Download BLIP-2 weights | `pip install huggingface_hub` | Run `hf auth login` first |
-| **Visual Studio Build Tools** | Rust compilation (for tokenizers) | `winget install Microsoft.VisualStudio.2022.BuildTools --id Microsoft.VisualStudio.2022.BuildTools --override "--add Microsoft.VisualStudio.Workload.VCTools --passive --norestart"` | Required for Rust-based packages |
+| **Visual Studio Build Tools** | Rust compilation (for tokenizers) | `winget install Microsoft.VisualStudio.2022.BuildTools` | Required for Rust-based packages |
 | **Rust (rustup)** | Rust toolchain | `winget install Rustlang.Rustup` | Required for tokenizers compilation |
 
 ### PATH Configuration
@@ -84,7 +110,6 @@ dir dist
 **Troubleshooting Windows Issues:**  
 - If `node` or `npm` is not recognized, restart PowerShell and try again! 
 - For Python dependencies after installing everything else: `pip install huggingface_hub`
-- To verify WSL installation works correctly in your environment: run `wsl --status`
 
 ---
 
@@ -111,9 +136,9 @@ ls -la dist
 
 ## 📥 Installing This Plugin in Modern LM Studio 
 
-Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! Here's how to connect this toolset properly:  
+Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! Here's how to connect this toolset properly: 
 
-1. Open your `mcp.json` config file from the **"Program"** tab → click "Install" → select "Edit mcp.json". This opens an in-app editor for LM Studio's MCP server definitions  
+1. Open your `mcp.json` config file from the **"Program"** tab → click "Install" → select "Edit mcp.json". This opens an in-app editor for LM Studio's MCP server definitions 
 2. Add a new entry under `"mcpServers"` pointing to our compiled plugin script (`dist/index.js`) like this: 
 
 ```json
@@ -147,13 +172,81 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 | `web_search` / `fetch_web_content` | Search web/news/images via DuckDuckGo + fetch URLs | None (built-in) |  
 | `create_file` / `read_file` | Create/read txt/md/json/csv/html/docx/pdf files | Node.js runtime only |
 | `search_directory` | Advanced file/folder search with filters | None (built-in) 
-| `execute_code` | Execute Python/Bash/Node code safely in sandboxed environment | WSL or Docker required!
+| `execute_code` | Execute Python/Bash/Node code in **WASM sandbox** (QuickJS for JS, Pyodide for Python) | WASM sandbox (built-in) |
 | `memory_set/get/list/delete/log_append/tail` | Persistent sql.js-backed key-value store & log management | Pure JS — no extra deps needed!  
 | `index_build/query/update` | Semantic search indexing over directories using sentence transformers | Python + numpy/sentence-transformers installed via pip above 
 | `validate_schema` / `read_image` (OCR) | JSON/YAML validation against schemas and Tesseract-based image text extraction | Pillow, pytesseract, jsonschema packages from pip list above!
 | `describe_image` | Image captioning using BLIP-2 (ONNX) | `./blip2-opt-2.7b/` weights downloaded via `hf download` |
 | `visual_question_answering` | Answer specific questions about an image using BLIP-2 | `./blip2-opt-2.7b/` weights downloaded via `hf download` |
 
---- 
-*Last Updated: 2026-07-09*
-*Updated: Added BLIP-2 captioning & VQA support, removed LAVIS/blip-caption references*
+### ⚠️ Deprecated: Git Tools (2025-07-09)
+
+**The following tools have been deprecated** due to sandbox security constraints:
+
+| Tool | Status | Alternative |
+|------|--------|-------------|
+| `git_status` | ❌ Deprecated | LM Studio native Git interface |
+| `git_diff` | ❌ Deprecated | LM Studio native Git interface |
+| `git_log` | ❌ Deprecated | LM Studio native Git interface |
+| `git_blame` | ❌ Deprecated | LM Studio native Git interface |
+| `git_list_files` | ❌ Deprecated | LM Studio native Git interface |
+| `git_read_file` | ❌ Deprecated | LM Studio native Git interface |
+| All GitHub tools | ❌ Deprecated | LM Studio native GitHub interface |
+
+**To restore git tools in the future:**
+1. Restore from `backup/system-path-tools/`
+2. Update sandbox permissions to allow system pathing
+3. Re-enable tools in `tools-order.ts`
+
+---
+
+## 🛡️ Security Model: WASM-Based Sandboxing
+
+This plugin uses **WebAssembly (WASM) sandboxing** for code execution instead of Docker/WSL2:
+
+- **JavaScript**: `@sebastianwessel/quickjs` (QuickJS compiled to WASM)
+- **Python**: `pyodide` (CPython compiled to WASM)
+- **Bash**: Not supported in sandboxed mode (requires real OS shell)
+
+**Benefits:**
+- ✅ No Docker/WSL2 required
+- ✅ Default-deny security (no network/filesystem access by default)
+- ✅ Configurable timeouts and memory limits
+- ✅ Works inside LM Studio's plugin sandbox
+
+---
+
+## 📐 Architecture: Truncator Integration
+
+### Single Source of Truth for `max_output_length`
+
+```
+truncator.ts (SOURCE OF TRUTH)
+    ├── export DEFAULT_MAX_CHARS = 8000
+    ├── export truncateOutput()
+    └── handles undefined/null by defaulting to DEFAULT_MAX_CHARS
+
+tools-order.ts (TOOL REGISTRY)
+    ├── imports DEFAULT_MAX_CHARS from truncator.ts ✅
+    ├── exports wrapWithTruncation() helper ✅
+    └── wraps all tools with truncator ✅
+```
+
+### Truncation Behavior
+- All outputs > 8000 chars are automatically chunked
+- JSON outputs preserve structure while chunking
+- Non-JSON outputs split into numbered segments
+- Prevents context overflow causing LM Studio faults
+
+### Truncation Format
+```
+--- CHUNK 1/3 ---
+{...}
+
+[Output was X chars, split into Y chunks...]
+```
+
+---
+
+*Last Updated: 2025-07-09*
+*Updated: Added git tools deprecation, truncator integration, single source of truth for max_output_length*
