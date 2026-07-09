@@ -1,27 +1,34 @@
 /**
- * github_ops.ts - TRUNCATED
+ * @DEPRECATED 2025-07-09: GitHub operations have been deprecated.
  * 
- * This tool requires system-level pathing (Docker/WSL/Git API) which is blocked
+ * These tools require system-level pathing (Docker/WSL/Git API) which is blocked
  * by LM Studio's sandbox security model.
  * 
- * When LM Studio expands sandbox permissions, restore from:
- * backup/system-path-tools/github_ops.ts
+ * Alternative: Use LM Studio's native interface for GitHub operations.
  * 
- * Alternative: Use LM Studio's native interface for GitHub/Git operations.
+ * To restore these tools in the future:
+ * 1. Restore from backup/system-path-tools/github_ops.ts
+ * 2. Update sandbox permissions to allow system pathing
+ * 3. Re-enable all GitHub tools
  */
 
+/**
+ * @DEPRECATED Use LM Studio's native GitHub interface instead.
+ */
 function createStub(name: string) {
   return async function(...args: any[]): Promise<string> {
     return JSON.stringify({
       success: false,
       tool: name,
-      error: 'Tool truncated due to sandbox security constraints',
-      hint: 'Restore from backup/system-path-tools/github_ops.ts when sandbox permissions are updated.',
-      alternative: 'Use LM Studio interface for system-level operations.'
+      status: 'DEPRECATED',
+      error: 'GitHub operations have been deprecated due to sandbox security constraints.',
+      hint: 'Use LM Studio interface for GitHub operations.',
+      restored_from: 'backup/system-path-tools/github_ops.ts'
     }, null, 2);
   };
 }
 
+// All GitHub tools are now deprecated
 export const github_push = createStub('github_push');
 export const github_create_pr = createStub('github_create_pr');
 export const github_create_issue = createStub('github_create_issue');

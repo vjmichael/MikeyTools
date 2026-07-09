@@ -18,7 +18,7 @@ export interface TruncatorOptions {
   includeMetadata?: boolean;
 }
 
-const DEFAULT_MAX_CHARS = 8000;
+export const DEFAULT_MAX_CHARS = 8000;
 const DEFAULT_CHUNK_SIZE = 4000;
 
 /**
@@ -44,8 +44,12 @@ export function truncateOutput(
     includeMetadata = true
   } = options;
 
+  // CRITICAL: Ensure maxChars is never undefined/null
+  // If maxChars is 0 or undefined, use DEFAULT_MAX_CHARS
+  const effectiveMaxChars = maxChars && maxChars > 0 ? maxChars : DEFAULT_MAX_CHARS;
+
   // Under limit - no truncation needed
-  if (output.length <= maxChars) {
+  if (output.length <= effectiveMaxChars) {
     return output;
   }
 
@@ -155,3 +159,4 @@ export function withTruncation(
     return truncateOutput(output, options);
   };
 }
+

@@ -1,6 +1,9 @@
-﻿/**
+/**
  * L-03 FIX: Centralized constants for the toolkit.
  * Replaces magic numbers scattered throughout the codebase.
+ * 
+ * IMPORTANT: MAX_OUTPUT_LENGTH is now exported from truncator.ts as DEFAULT_MAX_CHARS.
+ * All tools should import DEFAULT_MAX_CHARS from truncator.ts instead of defining their own.
  */
 
 // ===================== TIMEOUTS =====================
@@ -11,7 +14,6 @@ export const CLEANUP_INTERVAL_MS = 300000; // 5 minutes
 export const VIDEO_TIMEOUT_MS = 300000; // 5 minutes (for Whisper)
 
 // ===================== BUFFER SIZES =====================
-export const MAX_OUTPUT_LENGTH = 50000; // characters
 export const MAX_BUFFER_SIZE = 1024 * 1024 * 50; // 50MB
 
 // ===================== FILE SIZES =====================

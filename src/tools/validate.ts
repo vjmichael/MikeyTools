@@ -1,13 +1,17 @@
-﻿/**
+/**
  * Schema Validation Tool for LM Studio Plugin
  * 
  * Validates JSON/YAML data against JSON Schema with precise error paths.
  * Returns structured JSON for model parsing.
+ * 
+ * AUTO-REPAIR: If JSON parsing fails, automatically attempts repair via json_repair.
+ * If repair succeeds, validates the repaired JSON against the schema.
  */
 
 import * as Ajv from 'ajv';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
+import { repairJSON } from './json_repair';
 
 // BUG-FIX: Cache ajv instance to avoid creating new instances per validation
 let cachedAjv: any = null;
@@ -18,6 +22,27 @@ interface ValidationResult {
     path: string;
     message: string;
   }>;
+}
+
+/**
+ * Attempt to parse JSON with auto-repair on failure.
+ * Returns { success: true, data: any } or { success: false, error: string }
+ */
+function parseJSONWithRepair(jsonString: string): { success: true; data: any } | { success: false; error: string } {
+  try {
+    return { success: true, data: JSON.parse(jsonString) };
+  } catch (e) {
+    // Attempt JSON repair
+    const repairResult = repairJSON(jsonString, { logRepairs: false, maxAttempts: 5 });
+    if (repairResult.success && repairResult.repaired) {
+      try {
+        return { success: true, data: JSON.parse(repairResult.repaired) };
+      } catch {
+        return { success: false, error: `JSON parsing failed. Repair also failed: ${repairResult.error || 'unknown error'}` };
+      }
+    }
+    return { success: false, error: `Invalid JSON: ${e instanceof Error ? e.message : String(e)}. Repair failed.` };
+  }
 }
 
 export async function validateSchema(
@@ -31,31 +56,38 @@ export async function validateSchema(
     // Parse data
     let parsedData: any;
     if (data) {
-      try {
-        // BUG-08 FIX: Branch on format to parse YAML or JSON
-        parsedData = format === 'yaml' ? yaml.load(data) : JSON.parse(data);
-      } catch (e) {
-        return {
-          valid: false,
-          errors: [{ path: '$', message: `Invalid ${format.toUpperCase()}: ${String(e)}` }]
-        };
+      if (format === 'yaml') {
+        try {
+          parsedData = yaml.load(data);
+        } catch (e) {
+          return { valid: false, errors: [{ path: '$', message: `Invalid YAML: ${String(e)}` }] };
+        }
+      } else {
+        // JSON format - attempt parse with auto-repair
+        const parseResult = parseJSONWithRepair(data);
+        if (!parseResult.success) {
+          return { valid: false, errors: [{ path: '$', message: parseResult.error }] };
+        }
+        parsedData = parseResult.data;
       }
     } else if (file_path) {
       const content = fs.readFileSync(file_path, 'utf8');
-      try {
-        // BUG-08 FIX: Branch on format to parse YAML or JSON
-        parsedData = format === 'yaml' ? yaml.load(content) : JSON.parse(content);
-      } catch (e) {
-        return {
-          valid: false,
-          errors: [{ path: '$', message: `Invalid ${format.toUpperCase()} in ${file_path}: ${String(e)}` }]
-        };
+      if (format === 'yaml') {
+        try {
+          parsedData = yaml.load(content);
+        } catch (e) {
+          return { valid: false, errors: [{ path: '$', message: `Invalid YAML in ${file_path}: ${String(e)}` }] };
+        }
+      } else {
+        // JSON format - attempt parse with auto-repair
+        const parseResult = parseJSONWithRepair(content);
+        if (!parseResult.success) {
+          return { valid: false, errors: [{ path: '$', message: `${parseResult.error} in ${file_path}` }] };
+        }
+        parsedData = parseResult.data;
       }
     } else {
-      return {
-        valid: false,
-        errors: [{ path: '$', message: 'Either data or file_path must be provided' }]
-      };
+      return { valid: false, errors: [{ path: '$', message: 'Either data or file_path must be provided' }] };
     }
     
     // Parse schema
@@ -64,36 +96,25 @@ export async function validateSchema(
       try {
         parsedSchema = JSON.parse(schema);
       } catch (e) {
-        return {
-          valid: false,
-          errors: [{ path: '$', message: `Invalid JSON schema: ${String(e)}` }]
-        };
+        return { valid: false, errors: [{ path: '$', message: `Invalid JSON schema: ${String(e)}` }] };
       }
     } else if (schema_path) {
       const schemaContent = fs.readFileSync(schema_path, 'utf8');
       try {
-        // Try JSON first, then YAML as fallback
+        parsedSchema = JSON.parse(schemaContent);
+      } catch {
+        // Not valid JSON, try YAML
         try {
-          parsedSchema = JSON.parse(schemaContent);
-        } catch {
-          // Not valid JSON, try YAML
           parsedSchema = yaml.load(schemaContent);
+        } catch (e) {
+          return { valid: false, errors: [{ path: '$', message: `Invalid schema in ${schema_path}: ${String(e)}` }] };
         }
-      } catch (e) {
-        return {
-          valid: false,
-          errors: [{ path: '$', message: `Invalid schema in ${schema_path}: ${String(e)}` }]
-        };
       }
     } else {
-      return {
-        valid: false,
-        errors: [{ path: '$', message: 'Either schema or schema_path must be provided' }]
-      };
+      return { valid: false, errors: [{ path: '$', message: 'Either schema or schema_path must be provided' }] };
     }
     
     // Validate
-    // BUG-FIX: Use cached ajv instance to improve performance
     const AjvModule = Ajv as any;
     if (!cachedAjv) {
       cachedAjv = new (AjvModule.default || AjvModule)();

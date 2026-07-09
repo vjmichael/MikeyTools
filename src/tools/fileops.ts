@@ -65,7 +65,10 @@ export async function createFile(
         return await createPdf(outputPath, content, options);
 
       default:
-        return `Unknown file type: ${fileType}. Supported: txt, md, json, csv, html, docx, pdf`;
+        // No extension restrictions - AI model decides appropriate extension
+        // Write content directly to file regardless of extension
+        fs.writeFileSync(outputPath, content, 'utf8');
+        return `Created file: ${outputPath} (${content.length} bytes)`;
     }
   } catch (e) {
     return `Error creating file: ${e instanceof Error ? e.message : String(e)}`;
@@ -431,7 +434,10 @@ export async function readFile(filepath: string): Promise<string> {
         return readPdf(filePath, stat);
 
       default:
-        return `Unsupported file type: ${ext}. Supported: .txt, .md, .json, .csv, .html, .docx, .pdf`;
+        // No extension restrictions - try to read as text
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        return `--- ${filePath} (${stat.size.toLocaleString()} bytes) ---
+${fileContent}`;
     }
   } catch (e) {
     return `Error reading file: ${e instanceof Error ? e.message : String(e)}`;

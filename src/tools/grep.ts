@@ -35,10 +35,11 @@ export interface GrepOptions {
 }
 
 const DEFAULT_TIMEOUT = 30;
-const MAX_OUTPUT_LENGTH = 50000;
+// MAX_OUTPUT_LENGTH is now exported from truncator.ts as DEFAULT_MAX_CHARS
 
 // IMPROVE-06 FIX: Import isCommandAvailable from utils to reduce duplication
 import { isCommandAvailable } from './utils';
+import { DEFAULT_MAX_CHARS } from './truncator';
 
 /**
  * Checks if ripgrep (rg) is available on the system.
@@ -236,7 +237,7 @@ export async function grep(options: GrepOptions): Promise<GrepResult> {
 /**
  * Truncates output to prevent excessive length.
  */
-function truncateOutput(output: string, maxLength: number = MAX_OUTPUT_LENGTH): string {
+function truncateOutput(output: string, maxLength: number = DEFAULT_MAX_CHARS): string {
   if (output.length <= maxLength) {
     return output;
   }

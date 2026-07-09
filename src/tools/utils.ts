@@ -1,8 +1,11 @@
-﻿/**
+/**
  * Shared utilities for LM Studio Plugin
  * 
  * Common functions used across multiple tool files to reduce duplication
  * and improve code consistency.
+ * 
+ * IMPORTANT: MAX_OUTPUT_LENGTH is now exported from truncator.ts as DEFAULT_MAX_CHARS.
+ * All tools should import DEFAULT_MAX_CHARS from truncator.ts instead of defining their own.
  */
 
 import { execFile } from 'child_process';
@@ -14,10 +17,6 @@ const execFileAsync = promisify(execFile);
 
 // ===================== COMMAND AVAILABILITY =====================
 
-/**
- * Checks if a command is available on the system PATH.
- * Used by docker_ops.ts, git_ops.ts, github_ops.ts, audio.ts, and sandbox.ts.
- */
 /**
  * Checks if a command is available on the system PATH.
  * Used by docker_ops.ts, git_ops.ts, github_ops.ts, audio.ts, and sandbox.ts.
@@ -51,6 +50,12 @@ export async function isCommandAvailable(cmd: string): Promise<boolean> {
   
   return false;
 }
+
+// ===================== FILE FINDING =====================
+
+export interface FindFilesOptions {
+  /** Glob pattern to match (e.g., '*.py', '*.js,*.ts,*.tsx') */
+  pattern: string;
   /** Maximum directory depth to search (default: unlimited) */
   maxDepth?: number;
   /** Current recursion depth (internal use) */
@@ -133,7 +138,7 @@ function matchesPattern(filename: string, pattern: string): boolean {
   
   // Simple wildcard (*.name)
   if (pattern.includes('*')) {
-    const regex = new RegExp('^' + pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$');
+    const regex = new RegExp('^' + pattern.replace(/[.+^${}()|\\]/g, '\\$&').replace(/\*/g, '.*') + '$');
     return regex.test(filename);
   }
   
@@ -145,7 +150,7 @@ export const DEFAULT_TIMEOUT = 30000; // 30 seconds
 export const MAX_TIMEOUT = 120000; // 2 minutes
 export const TASK_TTL_MS = 3600000; // 1 hour
 export const CLEANUP_INTERVAL_MS = 300000; // 5 minutes
-export const MAX_OUTPUT_LENGTH = 50000;
+// NOTE: MAX_OUTPUT_LENGTH is now exported from truncator.ts as DEFAULT_MAX_CHARS
 export const MAX_BUFFER_SIZE = 1024 * 1024 * 50; // 50MB
 
 // ===================== STRUCTURED ERROR MESSAGES (#4 from IMPROVEMENTS doc) =====================

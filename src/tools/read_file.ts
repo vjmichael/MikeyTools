@@ -418,94 +418,34 @@ function detectEncoding(content: Buffer): string {
  * Check if a file is text-based (readable as text).
  */
 function isTextFile(filePath: string): boolean {
-  const ext = path.extname(filePath).toLowerCase();
-  
-  // Common text file extensions
-  const textExtensions = new Set([
-    // Code files
-    '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.es6', '.pac',
-    '.py', '.pyw', '.pyi', '.pyx', '.pxd', '.pxi',
-    '.java', '.class',
-    '.c', '.h', '.cpp', '.hpp', '.cc', '.hh', '.cxx', '.hxx', '.inl',
-    '.cs', '.vb', '.vbs',
-    '.go', '.rs', '.rlib',
-    '.rb', '.rbw', '.rake', '.gemspec',
-    '.php', '.php3', '.php4', '.php5', '.phtml',
-    '.swift', '.kt', '.kts', '.scala', '.sc', '.sbt',
-    '.r', '.R', '.Rmd', '.Rnw',
-    '.m', '.mm',
-    '.pl', '.pm', '.pod', '.t', '.perl',
-    '.lua', '.luau',
-    '.hs', '.lhs',
-    '.ml', '.mli', '.mll', '.mly',
-    '.ex', '.exs', '.eex', '.heex',
-    '.erl', '.hrl', '.es', '.es3',
-    '.v', '.sv', '.svh',
-    '.vhdl', '.vhd',
-    '.asm', '.s', '.S', '.ms',
-    '.sh', '.bash', '.zsh', '.ksh', '.csh', '.tcsh', '.fish',
-    '.ps1', '.psd1', '.psm1',
-    '.bat', '.cmd', '.com', '.btm',
-    '.sql', '.ddl', '.dml',
-    '.yaml', '.yml',
-    '.json', '.jsonc', '.json5',
-    '.xml', '.xsl', '.xsd', '.xslt', '.xhtml',
-    '.toml', '.ini', '.cfg', '.conf', '.config',
-    '.csv', '.tsv', '.psv', '.ssv',
-    '.md', '.mdx', '.mkd', '.mdwn', '.mdown', '.markdn',
-    '.rst', '.rest', '.restx',
-    '.tex', '.ltx', '.sty', '.cls', '.bib',
-    '.html', '.htm', '.xhtml', '.mhtml',
-    '.css', '.scss', '.sass', '.less', '.styl',
-    '.svg', '.svgz',
-    '.proto', '.protobuf',
-    '.graphql', '.gql',
-    '.tf', '.hcl', '.nomad',
-    // Config files
-    '.env', '.gitignore', '.gitattributes', '.editorconfig',
-    '.prettierrc', '.eslintrc', '.babelrc', '.nvmrc',
-    '.npmrc', '.yarnrc', '.pnp.cjs', '.pnp.loader.mjs',
-    // Build files
-    '.dockerfile', '.makefile', '.cmakelists.txt',
-    // Other
-    '.txt', '.rtf', '.log', '.out', '.err', '.map',
-    '.lock', '.sum', '.work', '.cache',
-    // Markup
-    '.adoc', '.asciidoc', '.asc',
-    '.org',
-    '.wiki',
-    '.mediawiki',
-    '.gfm',
-    '.textile',
-    '.creole',
-    '.pod',
-    '.pod6',
-    '.pod7',
-    '.pod8',
-    '.pod9',
-    '.pod10',
-    '.pod11',
-    '.pod12',
-    '.pod13',
-    '.pod14',
-    '.pod15',
-    '.pod16',
-    '.pod17',
-    '.pod18',
-    '.pod19',
-    '.pod20',
-    // Archive metadata
-    '.gitkeep',
-    '.keep',
-    '.placeholder',
-  ]);
-  
-  return textExtensions.has(ext);
+  try {
+    const fs = require('fs');
+    const buffer = fs.readFileSync(filePath);
+    
+    // Check for null bytes (indicates binary)
+    for (let i = 0; i < Math.min(buffer.length, 8192); i++) {
+      if (buffer[i] === 0) {
+        return false;
+      }
+    }
+    
+    // Check if content is valid UTF-8
+    try {
+      const text = buffer.toString('utf8');
+      const reencoded = Buffer.from(text, 'utf8');
+      if (reencoded.equals(buffer)) {
+        return true;
+      }
+    } catch {
+      return false;
+    }
+    
+    return false;
+  } catch {
+    return false;
+  }
 }
 
-/**
- * Check if a file is a binary document that needs special handling.
- */
 function isBinaryDocument(filePath: string): boolean {
   const ext = path.extname(filePath).toLowerCase();
   

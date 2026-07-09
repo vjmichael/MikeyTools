@@ -1,4 +1,5 @@
-﻿import * as fs from 'fs';
+import { truncateOutput, DEFAULT_MAX_CHARS } from './truncator';
+import * as fs from 'fs';
 import * as path from 'path';
 
 // ===================== LIST DIRECTORY =====================
@@ -18,10 +19,15 @@ export interface ListDirectoryOptions {
   maxDepth?: number;
   sortBy?: 'name' | 'size' | 'date';
   ascending?: boolean;
+  max_output_length?: number;
+  max_entries?: number;
 }
 
 /**
  * List files and directories in a given path.
+ * 
+ * IMPORTANT: max_output_length uses DEFAULT_MAX_CHARS from truncator.ts.
+ * If max_output_length is 0 or undefined, truncator.ts will use DEFAULT_MAX_CHARS (8000).
  */
 export async function listDirectory(
   dirPath: string,
@@ -34,7 +40,9 @@ export async function listDirectory(
     includeDirs = true,
     maxDepth = 0,
     sortBy = 'name',
-    ascending = true
+    ascending = true,
+    max_output_length = 0,  // 0 means use DEFAULT_MAX_CHARS from truncator.ts
+    max_entries = 2000
   } = options;
 
   try {
@@ -103,6 +111,17 @@ export async function listDirectory(
 
     listDir(resolvedPath, 0);
 
+    // Cap entries to prevent massive output (primary safeguard)
+    if (max_entries > 0 && entries.length > max_entries) {
+      const remaining = entries.length - max_entries;
+      entries.length = max_entries;
+      entries.push({
+        name: `[... ${remaining} more entries - increase max_entries to see all]`,
+        type: 'file',
+        depth: -1
+      });
+    }
+
     // Sort entries
     entries.sort((a, b) => {
       let comparison = 0;
@@ -116,12 +135,19 @@ export async function listDirectory(
       return ascending ? comparison : -comparison;
     });
 
-    return JSON.stringify({
+    const result = JSON.stringify({
       success: true,
       path: resolvedPath,
       count: entries.length,
       entries
     }, null, 2);
+
+    // Use truncator to prevent token overflow (secondary safeguard)
+    // IMPORTANT: max_output_length=0 means "use DEFAULT_MAX_CHARS from truncator.ts"
+    // The truncator.ts handles undefined/null by defaulting to DEFAULT_MAX_CHARS
+    const effectiveMaxOutput = max_output_length > 0 ? max_output_length : undefined;
+    // Pass undefined - truncator.ts will use DEFAULT_MAX_CHARS (8000) as default
+    return truncateOutput(result, effectiveMaxOutput !== undefined && effectiveMaxOutput > 0 ? { maxChars: effectiveMaxOutput } : undefined);
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
     return JSON.stringify({ success: false, error: `Error listing directory '${dirPath}': ${errMsg}` }, null, 2);
