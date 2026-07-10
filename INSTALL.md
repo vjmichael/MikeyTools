@@ -136,8 +136,11 @@ cd /path/to/MikeyTools
 # 2. Install all Node.js dependencies automatically from package.json:
 npm install --legacy-peer-deps  
 
-# 3. Load Qwen2.5-VL model in LM Studio (for describe_image, analyze_video):
-# Open LM Studio → Discover tab → Search "Qwen2.5-VL-3B" → Download
+# 3. Load a tool enabled AI model in LM Studio (for describe_image, analyze_video):
+# Open LM Studio → Discover tab → Search for an AI model that has the hammer symbol → Download
+
+<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/87a1886e-ab39-4419-a9d7-0c88766c2acd" />
+
 
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js): 
 npm run build
