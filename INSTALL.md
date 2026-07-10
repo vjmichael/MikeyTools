@@ -85,7 +85,7 @@ Add these to your Windows Environment PATH (System or User variables):
 
 ```powershell
 # Add whisper-bin
-[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Users\UserMN4312\toolkit\lm-studio-plugin\whisper-bin", "User")
+[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Users\$yourusername$\MikeyTools\whisper-bin", "User")
 
 # Add ffmpeg
 [Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\ffmpeg\bin", "User")
@@ -102,13 +102,17 @@ $env:PATH += ";$env:APPDATA\Python\Python314\Scripts"
 
 ```powershell
 # 1. Navigate to plugin directory 
-cd "c:\Users\UserMN4312\toolkit/lm-studio-plugin" 
+cd "c:\Users\$yourusername$\MikeyTools\lm-studio-plugin" 
 
 # 2. Install all Node.js dependencies automatically:
 npm install --legacy-peer-deps  
 
-# 3. Load Qwen2.5-VL model in LM Studio (for describe_image, analyze_video):
-# Open LM Studio → Discover tab → Search "Qwen2.5-VL-3B" → Download
+# 3. Load an AI model with tool support in LM Studio (for describe_image, analyze_video):
+# Open LM Studio → Discover tab → Search for any AI model with tools support → Download
+# Look for AI Models with the hammer symbol next to them.
+
+<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/484da405-a1ac-4594-88ef-12afcc09d740" />
+
 
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js):
 npm run build
@@ -127,7 +131,7 @@ dir dist
 
 ```bash  
 # 1. Navigate to plugin directory on your machine: 
-cd /path/to/toolkit/lm-studio-plugin 
+cd /path/to/MikeyTools
 
 # 2. Install all Node.js dependencies automatically from package.json:
 npm install --legacy-peer-deps  
@@ -156,7 +160,7 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
   "mcpServers": {    
     "lm-studio-plugin": {      
       "command": "/path/to/node",  # or full path on Windows! e.g., C:\Program Files\nodejs\node.exe       
-      "args": ["C:/Users/UserMN4312/toolkit/lm-studio-plugin/dist/index.js"]
+      "args": ["C:/Users/$yourusername$/MikeyTools/dist/index.js"]
     }  
   } 
 }
