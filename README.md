@@ -55,7 +55,7 @@ Before running or installing this plugin in modern LM Studio, you **must have al
 - `delete_lines_in_file` - Delete line ranges
 
 ### 🧠 JSON Repair (Layer 2)
-Automatic JSON syntax repair for malformed tool-call arguments:
+Automatic JSON syntax repair for simple malformed tool-call arguments:
 - Removes trailing commas
 - Balances brackets/braces
 - Fixes escape sequences
@@ -64,22 +64,20 @@ Automatic JSON syntax repair for malformed tool-call arguments:
 ### 📝 Scratchpad (Layer 1)
 ### 🎯 AI Model Requirements for Vision Tools
 
-**Vision tools (`describe_image`, `visual_question_answering`) require an AI model with native vision support loaded in LM Studio.**
+**Vision tools (`describe_image`, `visual_question_answering`) require an AI model with vision and tool support loaded in LM Studio.**
 
 | Tool | AI Model Required? | Notes |
 |------|-------------------|-------|
-| `describe_image` | ✅ Yes | Must use a vision-capable model (e.g., Qwen3.6-35B-A3B, Qwen2.5-VL) |
+| `describe_image` | ⚠️ Optional | Blip2 (offline;bundled with @xenova/transformers); Not needed if using a vision-capable model (e.g., Qwen3.6-35B-A3B) |
 | `visual_question_answering` | ✅ Yes | Must use a vision-capable model |
 | `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline, no AI model) |
-| `transcribe_audio` | ⚠️ Optional | Uses whisper.cpp (offline); future: Qwen3-Omni |
+| ~~transcribe_audio` | ⚠️ Optional | Uses whisper.cpp (offline); future: Qwen3-Omni~~ |
 | `analyze_video` | ✅ Yes | Must use a vision-capable model |
 
 **Recommended Models:**
 - **Qwen3.6-35B-A3B** — Best balance of quality and VRAM (~18GB)
-- **Qwen2.5-VL-7B** — Strong vision, lower VRAM (~6GB)
-- **Qwen2.5-VL-3B** — Lowest VRAM (~3-4GB)
 
-**Note:** The plugin is **AI-agnostic** for vision tasks — it calls whatever model is loaded in LM Studio. No BLIP2 or separate vision models needed.
+**Note:** The plugin is **AI-agnostic** for vision tasks — it calls whatever model is loaded in LM Studio. BLIP2 is optional or separate vision models needed.
 
 ---
 
@@ -145,9 +143,8 @@ The following tools now return deprecation messages:
 **JavaScript Execution:**
 - Uses Node.js directly (not sandboxed)
 - QuickJS WASM was deprecated and removed (2026-07-09)
-- See STATE_OF_WORK_V2.md for details
 
-**No Docker/WSL Required** — Pure WASM sandboxing works from any environment.
+**Docker/WSL could not be implemented** — tool cannot find the system path. LM Studio has its own internal path and does not inherit Window's system environment paths. Was not tested to see if Linux is the same or different.
 
 ---
 
@@ -204,7 +201,7 @@ create_file({file_type: "json", filename: "output.json", content: '{"data": []}'
 
 ### JSON Repair (Layer 2)
 ```typescript
-// Auto-repairs malformed JSON
+// Auto-repairs simple malformed JSON
 json_repair({json_string: '{"key": "value",}'})
 // Returns: {"success": true, "repaired": "{\"key\": \"value\"}", "repairs_applied": ["removed_trailing_commas"]}
 ```
@@ -299,7 +296,7 @@ read_image({file_path: "C:/path/to/image.jpg", ocr_only: true})
 
 - The AI model **CAN** code, run commands, and execute code in the development folder
 - The AI model **CAN** write to ANY file in the storage device
-- The AI model **CAN** execute malicious code
+- The AI model **CAN** execute malicious code with exception to sandboxing python by Pyodide currently.
 - There is **NO default sandboxing** for working within a defined environment by LM Studio
 
 ### Why This Exists
@@ -313,10 +310,9 @@ This is intentional to work with "abliterated" editions of AI models for **red t
 - WASM sandboxing for code execution (QuickJS + Pyodide)
 
 ### What This Toolkit DOES Provide (Sandboxing)
-- **WASM sandboxing for code execution** (QuickJS + Pyodide)
-- **QuickJS WASM** — JavaScript/TypeScript code execution in isolated WASM environment
+- **WASM sandboxing for code execution** (currently Pyodide)
 - **Pyodide WASM** — Python code execution in isolated WASM environment
-- **No Docker/WSL required** — Pure WASM sandboxing works from any environment
+- **Testing other programming language requires installing the appropriate compiler.
 
 ### What This Toolkit DOES NOT Provide
 - File operation whitelisting
@@ -330,6 +326,7 @@ This is intentional to work with "abliterated" editions of AI models for **red t
 - Restricting access to sensitive files
 - Running AI models in controlled environments
 - Understanding the risks of unfiltered AI execution
+- running malicious code whether intentional or accidentall.
 
 ---
 
