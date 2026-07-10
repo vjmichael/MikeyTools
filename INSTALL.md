@@ -112,7 +112,7 @@ npm install --legacy-peer-deps
 # Look for AI Models with the hammer symbol next to them.
 ```
 
-<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/85cfe929-6462-4fce-a3fc-239bc8b0c1ab"/>
+<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/85cfe929-6462-4fce-a3fc-239bc8b0c1ab" size="50%"/>
 
 ```
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js):
@@ -190,7 +190,7 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 | `web_search` / `fetch_web_content` | Search web/news/images via DuckDuckGo + fetch URLs | None (built-in) |  
 | `create_file` / `read_file` | Create/read txt/md/json/csv/html/docx/pdf files | Node.js runtime only |
 | `search_directory` | Advanced file/folder search with filters | None (built-in) 
-| `execute_code` | Execute Python/Bash/Node code in **WASM sandbox** (QuickJS for JS, Pyodide for Python) | WASM sandbox (built-in) |
+| `execute_code` | Execute Python/Bash/Node code in **WASM sandbox** (only Pyodide for Python currently) | WASM sandbox (built-in) |
 | `memory_set/get/list/delete/log_append/tail` | Persistent sql.js-backed key-value store & log management | Pure JS — no extra deps needed!  
 | `index_build/query/update` | Semantic search indexing over directories using sentence transformers | Python + numpy/sentence-transformers installed via pip above 
 | `validate_schema` / `read_image` (OCR) | JSON/YAML validation against schemas and Tesseract-based image text extraction | Pillow, pytesseract, jsonschema packages from pip list above!
@@ -215,36 +215,40 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 1. Restore from `backup/system-path-tools/`
 2. Update sandbox permissions to allow system pathing
 3. Re-enable tools in `tools-order.ts`
-
 ---
 
-## 🛡️ Security Model: WASM-Based Sandboxing (Pyodide Only)
+## 🛡️ Security Concerns: WASM-Based Sandboxing Currently (Pyodide Only)
 
-This plugin uses **WebAssembly (WASM) sandboxing** for code execution:
+Security is problematic with LM Studio. Some actions such as the AI model running npm run build compiles nothing but may still output useful compiler errors sometimes and sometimes false positive compiler results. The only sandboxing I put in was for python code sandboxing but I did not do a comprehensive testing on other compilers. I know why other plugins use a directory whitelisting mechanism to safeguard against malicious code. Initiall, the goal was to use WSL2/Docker to execute any code within but that proved problematic because the tools could not path correctly. After some debugging, LM Studio does not inherit the OS system environment paths. Have not test this on Linux.
+
+This plugin uses **Pyodide WebAssembly (WASM) sandboxing** for code execution:
 
 - **JavaScript**: Node.js direct execution (not sandboxed)
 - **Python**: `pyodide` (CPython compiled to WASM)
 - **Bash**: Not supported in sandboxed mode (requires real OS shell)
-
-**QuickJS WASM was deprecated and removed (2026-07-09):**
-- ❌ Browser-first design (not compatible with LM Studio's Node.js environment)
-- ❌ Intentionally restricts Node.js APIs for security
-- ❌ WASM loading issues in non-browser environments
-- ❌ Filesystem access restrictions break sandbox functionality
-- ❌ Limited Node.js compatibility (explicitly stated by library authors)
+- Require additional compilers to test other programming languages and scripts.
 
 **Pyodide WASM:**
 - Python execution in isolated WASM environment
 - Full Python standard library
 - Scientific packages (numpy, pandas) available
 
-**Benefits:**
-- ✅ No Docker/WSL2 required
-- ✅ Default-deny security (no network/filesystem access by default)
-- ✅ Configurable timeouts and memory limits
-- ✅ Works inside LM Studio's plugin sandbox
+**@sebastianwessel/quickJS WASM was deprecated and removed (2026-07-09):**
+- ❌ Browser-first design (not compatible with LM Studio's Node.js environment)
+- ❌ Intentionally restricts Node.js APIs for security
+- ❌ WASM loading issues in non-browser environments
+- ❌ LFilesystem access is not sandbox
+- ❌ Limited Node.js compatibility (explicitly stated by library authors)
 
-Have not tried any other programming language and scripts. So long as the appropriate compiler is install, the AI model can write and run any code.
+**Isolated-VM does not support odd numbered versions of Node.**
+- ❌ LM Studio bundles Node 25.5.0 (odd-numbered, unstable/development track)
+
+**vm2 and Node's built-in vm were immediately reject from the start.**
+- ❌ vm2 has documented history of sandbox-escape CVEs.
+- ❌ Node's built-in vm module has no security boundary at all. Code can escape to real Node process
+
+**WSL2/Docker Sandboxed out**
+- ❌ LM Studio has its own internal system paths and does not inherit Window's system envrionmental paths.
 
 ---
 
