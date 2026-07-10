@@ -170,7 +170,7 @@ npm --version    # Should be 9.0.0 or higher
 ### Setup (Windows PowerShell 7+)
 ```powershell
 # Navigate to plugin directory
-cd "C:\Users\UserMN4312\toolkit\lm-studio-plugin"
+cd "C:\Users\$yourusename$\Downloads\Mikeystoolkit"
 
 # Install dependencies automatically
 npm install --legacy-peer-deps
