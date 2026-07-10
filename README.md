@@ -22,6 +22,7 @@ winget search --id Microsoft.PowerShell --exact
 
 ### Feature-Specific Dependencies
 3.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation
+
 Powershell Installation Command
 ```
 winget install Python.Python.3.14
