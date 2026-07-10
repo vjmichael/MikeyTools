@@ -240,6 +240,8 @@ This plugin uses **WebAssembly (WASM) sandboxing** for code execution:
 - ✅ Configurable timeouts and memory limits
 - ✅ Works inside LM Studio's plugin sandbox
 
+Have not tried any other programming language and scripts. So long as the appropriate compiler is install, the AI model can write and run any code.
+
 ---
 
 ## 📐 Architecture: Truncator Integration
