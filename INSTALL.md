@@ -85,7 +85,7 @@ Add these to your Windows Environment PATH (System or User variables):
 
 ```powershell
 # Add whisper-bin
-[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Users\$yourusername$\MikeyTools\whisper-bin", "User")
+[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Users\$yourusername$\MikeyTools\nodes-module\whisper\whisper-bin", "User")
 
 # Add ffmpeg
 [Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\ffmpeg\bin", "User")
