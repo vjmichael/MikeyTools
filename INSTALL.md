@@ -185,37 +185,118 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 
 ## Available Tools 
 
-| Tool | Description | Dependencies Required |
-|------|-------------|------------------------|  
-| `web_search` / `fetch_web_content` | Search web/news/images via DuckDuckGo + fetch URLs | None (built-in) |  
-| `create_file` / `read_file` | Create/read txt/md/json/csv/html/docx/pdf files | Node.js runtime only |
-| `search_directory` | Advanced file/folder search with filters | None (built-in) 
-| `execute_code` | Execute Python/Bash/Node code in **WASM sandbox** (only Pyodide for Python currently) | WASM sandbox (built-in) |
-| `memory_set/get/list/delete/log_append/tail` | Persistent sql.js-backed key-value store & log management | Pure JS — no extra deps needed!  
-| `index_build/query/update` | Semantic search indexing over directories using sentence transformers | Python + numpy/sentence-transformers installed via pip above 
-| `validate_schema` / `read_image` (OCR) | JSON/YAML validation against schemas and Tesseract-based image text extraction | Pillow, pytesseract, jsonschema packages from pip list above!
-| `describe_image` | Image captioning using loaded AI model (Qwen2.5-VL) | Qwen2.5-VL-3B loaded in LM Studio |
-| `visual_question_answering` | Answer questions about an image using loaded AI model | Qwen2.5-VL-3B loaded in LM Studio |
-
-### ⚠️ Deprecated: Git Tools (2025-07-09)
-
-**The following tools have been deprecated** due to sandbox security constraints:
-
-| Tool | Status | Alternative |
-|------|--------|-------------|
-| `git_status` | ❌ Deprecated | LM Studio native Git interface |
-| `git_diff` | ❌ Deprecated | LM Studio native Git interface |
-| `git_log` | ❌ Deprecated | LM Studio native Git interface |
-| `git_blame` | ❌ Deprecated | LM Studio native Git interface |
-| `git_list_files` | ❌ Deprecated | LM Studio native Git interface |
-| `git_read_file` | ❌ Deprecated | LM Studio native Git interface |
-| All GitHub tools | ❌ Deprecated | LM Studio native GitHub interface |
-
-**To restore git tools in the future:**
-1. Restore from `backup/system-path-tools/`
-2. Update sandbox permissions to allow system pathing
-3. Re-enable tools in `tools-order.ts`
----
+📊 Complete Tools List (64 Active Tools)
+🔧 FILE OPERATIONS (14 tools)
+Tool	Description	Key Features
+write_file	Create/overwrite files	Dry-run mode, parent directory auto-creation
+write_file_append	Append to files	Dry-run mode, parent directory auto-creation
+edit_file	Complex file editing	Replace/insert/delete operations, dry-run diff preview
+create_file	Create files with any extension	AI determines file type, special formatting for txt/md/json/csv/html/docx/pdf
+read_file	Read any file	Auto-detects text vs binary, handles UTF-8/UTF-16/ASCII
+cat	Universal file reader	Streaming for large files, line range filtering, binary support
+cat_multiple	Read multiple files simultaneously	Concatenates content, per-file results
+delete_lines_in_file	Delete specific line ranges	1-indexed line numbers, optional end_line
+insert_at_line	Insert content at specific line	1-indexed line number, pushes existing content down
+replace_text_in_file	Simple find-and-replace	Exact string matching, unique old_string required
+list_directory	List files/directories	Recursive support, sorting by name/size/date, max_depth filter
+search_directory	Advanced directory search	Pattern matching, size/date/content filters, recursive mode
+grep	Regex file content search	ripgrep-based, case-insensitive, glob filtering
+copy_file	Copy files/directories	Recursive directory copy, auto-create destination
+apply_patch	Apply unified diff patches	Dry-run mode, conflict reporting, .bak backups
+is_symlink	Check if path is a symlink	Returns true/false
+get_symlink_target	Get symlink target	Returns resolved target path or null
+💻 CODE EXECUTION (4 tools)
+Tool	Description	Sandbox
+execute_code	Execute Python/Node.js code	Pyodide (Python) / Node.js (JS)
+run_command	Execute terminal commands	Native shell (auto-detects OS)
+check_env	Check sandbox availability	Reports Pyodide status
+run_in_sandbox	DEPRECATED → execute_code	Redirects to execute_code
+📦 BACKGROUND TASKS (3 tools)
+Tool	Description
+run_background_task	Run commands in background
+check_task_status	Monitor background tasks
+stop_task	Stop running background task
+💾 MEMORY & STATE (12 tools)
+Tool	Description
+memory_set	Set key-value pair in SQLite-backed memory
+memory_get	Get value by key
+memory_list	List keys with prefix filtering
+memory_delete	Delete key from memory
+memory_log_append	Append timestamped text to memory log
+memory_log_tail	Get last N log entries
+save_work	Save work state by key
+load_work	Load saved work state
+clear_work	Clear saved work state
+set_break	Set break flag to halt approach
+check_break	Check if break flag is set (60s validity)
+rebuild_memory	Rebuild memory profile from conversations
+read_memory_profile	Read current memory profile
+📝 SCRATCHPAD (8 tools)
+Tool	Description
+scratchpad_init	Initialize scratchpad workspace
+scratchpad_write	Overwrite scratchpad content
+scratchpad_append	Append to scratchpad content
+scratchpad_read	Read scratchpad content
+scratchpad_validate	Validate JSON in scratchpad
+scratchpad_edit	Fix JSON syntax errors
+scratchpad_commit	Commit and clear scratchpad
+scratchpad_clear	Clear scratchpad without returning
+🌐 WEB & SEARCH (3 tools)
+Tool	Description
+web_search	DuckDuckGo web/news/image search
+fetch_web_content	Extract clean text from URLs
+browse_js	Headless browser rendering
+✅ SCHEMA VALIDATION (1 tool)
+Tool	Description
+validate_schema	Validate JSON/YAML against schema
+🧠 CODE INTELLIGENCE (2 tools)
+Tool	Description
+find_symbol	Find symbol definition in codebase
+get_references	Find all references to symbol
+🔧 JSON REPAIR (1 tool)
+Tool	Description
+json_repair	Repair malformed JSON
+🖼️ VISION & MEDIA (5 tools)
+Tool	AI Model Required?	Notes
+describe_image	⚠️ Optional	Blip2 (offline); Not needed if using vision-capable model
+visual_question_answering	✅ Yes	Must use vision-capable model
+read_image (OCR)	❌ No	Uses Tesseract.js (offline)
+transcribe_audio	⚠️ Optional	Uses whisper.cpp (offline); future: Qwen3-Omni
+analyze_video	✅ Yes	Must use vision-capable model
+📖 FILE READING (3 tools)
+Tool	Description
+read_file	Read files with auto-detection
+cat	Cat-like behavior for any file
+cat_multiple	Read multiple files simultaneously
+🏗️ Architecture Overview
+Layer 1: Scratchpad (JSON Prevention)
+Helps model build complex JSON incrementally
+Prevents JSON syntax errors before they happen
+Uses existing tools (write_file, cat, etc.) under the hood
+Integrates with truncator.ts to prevent context overflow
+Layer 2: JSON Repair (Automatic)
+Fixes JSON errors after they happen
+Safety net for all tool calls
+Repairs: trailing commas, unbalanced brackets, escape sequences
+Transparent to the model
+Truncation Integration (Single Source of Truth)
+DEFAULT_MAX_CHARS = 8000 exported from truncator.ts
+All outputs > 8000 chars are chunked
+Prevents context overflow causing LM Studio faults
+All tools use the same truncation limit via wrapWithTruncation()
+⚠️ Deprecated Tools (6 tools)
+Tool	Status	Alternative
+git_status	❌ Deprecated	LM Studio native Git interface
+git_diff	❌ Deprecated	LM Studio native Git interface
+git_log	❌ Deprecated	LM Studio native Git interface
+git_blame	❌ Deprecated	LM Studio native Git interface
+git_list_files	❌ Deprecated	LM Studio native Git interface
+git_read_file	❌ Deprecated	LM Studio native Git interface
+🛡️ WASM Sandboxing (Pyodide Only)
+Language	Execution Method	Sandboxed?
+Python	Pyodide WASM	✅ Yes
+JavaScript	Node.js direct	❌ No
+Bash	Not supported	❌ Not available
 
 ## 🛡️ Security Concerns: WASM-Based Sandboxing Currently (Pyodide Only)
 
