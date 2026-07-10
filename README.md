@@ -12,9 +12,7 @@ Before running or installing this plugin in modern LM Studio, you **must have al
 
 ### Core Runtime Requirements
 1.  **PowerShell 7+ (*Windows ONLY*)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest)
-
-Alternative install. Press the Windows Key ⊞ + X. Select Powershell.
-```
+```Alternative install. Press the Windows Key ⊞ + X. Select Powershell.
 winget search --id Microsoft.PowerShell --exact
 ```
 
@@ -22,15 +20,11 @@ winget search --id Microsoft.PowerShell --exact
 
 ### Feature-Specific Dependencies
 3.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation
-
-Powershell Installation Command
-```
+```powershell
 winget install Python.Python.3.14
 ```  
 4.  **Headless Chromium / Chrome for Testing** — Needed by browser automation capabilities
-
-Powershell Installation Command
-```
+```powershell
 $chromeInstaller = "chrome_installer.exe"
 Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $chromeInstaller
 Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -NoNewWindow -Wait
@@ -130,7 +124,7 @@ This is a **limitation of LM Studio's plugin architecture**:
 - LM Studio does **not** provide an API to push messages to chat from plugins
 - When the LM Studio Server API is active, the server can push return strings into chat messages
 
-**Workaround:** Results are visible in the gray result box under the tool call. This is the expected behavior for all LM Studio plugin tools.
+**Possible Workaround:** Use LM Studio's Server API
 
 ### ⚠️ Deprecated: Git Tools
 **Git operations have been deprecated** (2025-07-09) due to sandbox security constraints.
@@ -163,7 +157,8 @@ The following tools now return deprecation messages:
 - Uses Node.js directly (not sandboxed)
 - QuickJS WASM was deprecated and removed (2026-07-09)
 
-**Docker/WSL could not be implemented** — tool cannot find the system path. LM Studio has its own internal path and does not inherit Window's system environment paths. Was not tested to see if Linux is the same or different.
+**Docker/WSL could not be implemented**
+- The goal was to use Docker with WSL being the fallback. But the Docker and WSL tools cannot find the system path. LM Studio has its own internal path and does not inherit Window's system environment paths. Therefore, any tool that requires access to the OS's system environment paths were sandboxed in. Was not able to test to see if Linux is the same or different.
 
 ---
 
