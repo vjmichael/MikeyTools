@@ -71,7 +71,7 @@ Automatic JSON syntax repair for simple malformed tool-call arguments:
 | `describe_image` | ⚠️ Optional | Blip2 (offline;bundled with @xenova/transformers); Not needed if using a vision-capable model (e.g., Qwen3.6-35B-A3B) |
 | `visual_question_answering` | ✅ Yes | Must use a vision-capable model |
 | `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline, no AI model) |
-| ~~transcribe_audio` | ⚠️ Optional | Uses whisper.cpp (offline); future: Qwen3-Omni~~ |
+| ~~transcribe_audio`~~ | ~~⚠️ Optional~~ | ~~Uses whisper.cpp (offline); future: Qwen3-Omni~~ |
 | `analyze_video` | ✅ Yes | Must use a vision-capable model |
 
 **Recommended Models:**
