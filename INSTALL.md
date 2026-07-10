@@ -185,119 +185,341 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 
 ## Available Tools 
 
-📊 Complete Tools List (64 Active Tools)
-🔧 FILE OPERATIONS (14 tools)
-Tool	Description	Key Features
-write_file	Create/overwrite files	Dry-run mode, parent directory auto-creation
-write_file_append	Append to files	Dry-run mode, parent directory auto-creation
-edit_file	Complex file editing	Replace/insert/delete operations, dry-run diff preview
-create_file	Create files with any extension	AI determines file type, special formatting for txt/md/json/csv/html/docx/pdf
-read_file	Read any file	Auto-detects text vs binary, handles UTF-8/UTF-16/ASCII
-cat	Universal file reader	Streaming for large files, line range filtering, binary support
-cat_multiple	Read multiple files simultaneously	Concatenates content, per-file results
-delete_lines_in_file	Delete specific line ranges	1-indexed line numbers, optional end_line
-insert_at_line	Insert content at specific line	1-indexed line number, pushes existing content down
-replace_text_in_file	Simple find-and-replace	Exact string matching, unique old_string required
-list_directory	List files/directories	Recursive support, sorting by name/size/date, max_depth filter
-search_directory	Advanced directory search	Pattern matching, size/date/content filters, recursive mode
-grep	Regex file content search	ripgrep-based, case-insensitive, glob filtering
-copy_file	Copy files/directories	Recursive directory copy, auto-create destination
-apply_patch	Apply unified diff patches	Dry-run mode, conflict reporting, .bak backups
-is_symlink	Check if path is a symlink	Returns true/false
-get_symlink_target	Get symlink target	Returns resolved target path or null
-💻 CODE EXECUTION (4 tools)
-Tool	Description	Sandbox
-execute_code	Execute Python/Node.js code	Pyodide (Python) / Node.js (JS)
-run_command	Execute terminal commands	Native shell (auto-detects OS)
-check_env	Check sandbox availability	Reports Pyodide status
-run_in_sandbox	DEPRECATED → execute_code	Redirects to execute_code
-📦 BACKGROUND TASKS (3 tools)
-Tool	Description
-run_background_task	Run commands in background
-check_task_status	Monitor background tasks
-stop_task	Stop running background task
-💾 MEMORY & STATE (12 tools)
-Tool	Description
-memory_set	Set key-value pair in SQLite-backed memory
-memory_get	Get value by key
-memory_list	List keys with prefix filtering
-memory_delete	Delete key from memory
-memory_log_append	Append timestamped text to memory log
-memory_log_tail	Get last N log entries
-save_work	Save work state by key
-load_work	Load saved work state
-clear_work	Clear saved work state
-set_break	Set break flag to halt approach
-check_break	Check if break flag is set (60s validity)
-rebuild_memory	Rebuild memory profile from conversations
-read_memory_profile	Read current memory profile
-📝 SCRATCHPAD (8 tools)
-Tool	Description
-scratchpad_init	Initialize scratchpad workspace
-scratchpad_write	Overwrite scratchpad content
-scratchpad_append	Append to scratchpad content
-scratchpad_read	Read scratchpad content
-scratchpad_validate	Validate JSON in scratchpad
-scratchpad_edit	Fix JSON syntax errors
-scratchpad_commit	Commit and clear scratchpad
-scratchpad_clear	Clear scratchpad without returning
-🌐 WEB & SEARCH (3 tools)
-Tool	Description
-web_search	DuckDuckGo web/news/image search
-fetch_web_content	Extract clean text from URLs
-browse_js	Headless browser rendering
-✅ SCHEMA VALIDATION (1 tool)
-Tool	Description
-validate_schema	Validate JSON/YAML against schema
-🧠 CODE INTELLIGENCE (2 tools)
-Tool	Description
-find_symbol	Find symbol definition in codebase
-get_references	Find all references to symbol
-🔧 JSON REPAIR (1 tool)
-Tool	Description
-json_repair	Repair malformed JSON
-🖼️ VISION & MEDIA (5 tools)
-Tool	AI Model Required?	Notes
-describe_image	⚠️ Optional	Blip2 (offline); Not needed if using vision-capable model
-visual_question_answering	✅ Yes	Must use vision-capable model
-read_image (OCR)	❌ No	Uses Tesseract.js (offline)
-transcribe_audio	⚠️ Optional	Uses whisper.cpp (offline); future: Qwen3-Omni
-analyze_video	✅ Yes	Must use vision-capable model
-📖 FILE READING (3 tools)
-Tool	Description
-read_file	Read files with auto-detection
-cat	Cat-like behavior for any file
-cat_multiple	Read multiple files simultaneously
-🏗️ Architecture Overview
-Layer 1: Scratchpad (JSON Prevention)
-Helps model build complex JSON incrementally
-Prevents JSON syntax errors before they happen
-Uses existing tools (write_file, cat, etc.) under the hood
-Integrates with truncator.ts to prevent context overflow
-Layer 2: JSON Repair (Automatic)
-Fixes JSON errors after they happen
-Safety net for all tool calls
-Repairs: trailing commas, unbalanced brackets, escape sequences
-Transparent to the model
-Truncation Integration (Single Source of Truth)
-DEFAULT_MAX_CHARS = 8000 exported from truncator.ts
-All outputs > 8000 chars are chunked
-Prevents context overflow causing LM Studio faults
-All tools use the same truncation limit via wrapWithTruncation()
-⚠️ Deprecated Tools (6 tools)
-Tool	Status	Alternative
-git_status	❌ Deprecated	LM Studio native Git interface
-git_diff	❌ Deprecated	LM Studio native Git interface
-git_log	❌ Deprecated	LM Studio native Git interface
-git_blame	❌ Deprecated	LM Studio native Git interface
-git_list_files	❌ Deprecated	LM Studio native Git interface
-git_read_file	❌ Deprecated	LM Studio native Git interface
-🛡️ WASM Sandboxing (Pyodide Only)
-Language	Execution Method	Sandboxed?
-Python	Pyodide WASM	✅ Yes
-JavaScript	Node.js direct	❌ No
-Bash	Not supported	❌ Not available
+================================================================================
+                    MIKEYTOOLS LM STUDIO PLUGIN — COMPLETE TOOLS LIST
+================================================================================
 
+Total Active Tools: 64
+Total Deprecated: 6
+
+================================================================================
+📊 COMPLETE TOOLS INVENTORY
+================================================================================
+
+--- 🔧 FILE OPERATIONS (14 tools) ---
+
+1.  write_file
+    Description: Create/overwrite files
+    Key Features: Dry-run mode, parent directory auto-creation
+
+2.  write_file_append
+    Description: Append to files
+    Key Features: Dry-run mode, parent directory auto-creation
+
+3.  edit_file
+    Description: Complex file editing
+    Key Features: Replace/insert/delete operations, dry-run diff preview
+
+4.  create_file
+    Description: Create files with any extension
+    Key Features: AI determines file type, special formatting for txt/md/json/csv/html/docx/pdf
+
+5.  read_file
+    Description: Read any file
+    Key Features: Auto-detects text vs binary, handles UTF-8/UTF-16/ASCII
+
+6.  cat
+    Description: Universal file reader
+    Key Features: Streaming for large files, line range filtering, binary support
+
+7.  cat_multiple
+    Description: Read multiple files simultaneously
+    Key Features: Concatenates content, per-file results
+
+8.  delete_lines_in_file
+    Description: Delete specific line ranges
+    Key Features: 1-indexed line numbers, optional end_line
+
+9.  insert_at_line
+    Description: Insert content at specific line
+    Key Features: 1-indexed line number, pushes existing content down
+
+10. replace_text_in_file
+    Description: Simple find-and-replace
+    Key Features: Exact string matching, unique old_string required
+
+11. list_directory
+    Description: List files/directories
+    Key Features: Recursive support, sorting by name/size/date, max_depth filter
+
+12. search_directory
+    Description: Advanced directory search
+    Key Features: Pattern matching, size/date/content filters, recursive mode
+
+13. grep
+    Description: Regex file content search
+    Key Features: ripgrep-based, case-insensitive, glob filtering
+
+14. copy_file
+    Description: Copy files/directories
+    Key Features: Recursive directory copy, auto-create destination
+
+15. apply_patch
+    Description: Apply unified diff patches
+    Key Features: Dry-run mode, conflict reporting, .bak backups
+
+16. is_symlink
+    Description: Check if path is a symlink
+    Key Features: Returns true/false
+
+17. get_symlink_target
+    Description: Get symlink target
+    Key Features: Returns resolved target path or null
+
+--- 💻 CODE EXECUTION (4 tools) ---
+
+18. execute_code
+    Description: Execute Python/Node.js code
+    Sandbox: Pyodide (Python) / Node.js (JS)
+
+19. run_command
+    Description: Execute terminal commands
+    Sandbox: Native shell (auto-detects OS)
+
+20. check_env
+    Description: Check sandbox availability
+    Sandbox: Reports Pyodide status
+
+21. run_in_sandbox
+    Description: DEPRECATED → execute_code
+    Sandbox: Redirects to execute_code
+
+--- 📦 BACKGROUND TASKS (3 tools) ---
+
+22. run_background_task
+    Description: Run commands in background
+    Returns: task_id immediately
+
+23. check_task_status
+    Description: Monitor background tasks
+    Returns: stdout/stderr/exit_code
+
+24. stop_task
+    Description: Stop running background task
+    Action: Terminates task
+
+--- 💾 MEMORY & STATE (14 tools) ---
+
+25. memory_set
+    Description: Set key-value pair in SQLite-backed memory
+
+26. memory_get
+    Description: Get value by key
+    Returns: null if absent
+
+27. memory_list
+    Description: List keys with prefix filtering
+    Features: LIKE match support
+
+28. memory_delete
+    Description: Delete key from memory
+
+29. memory_log_append
+    Description: Append timestamped text to memory log
+
+30. memory_log_tail
+    Description: Get last N log entries
+    Default: 50
+
+31. save_work
+    Description: Save work state by key
+
+32. load_work
+    Description: Load saved work state
+
+33. clear_work
+    Description: Clear saved work state
+
+34. set_break
+    Description: Set break flag to halt approach
+
+35. check_break
+    Description: Check if break flag is set (60s validity)
+
+36. rebuild_memory
+    Description: Rebuild memory profile from conversations
+
+37. read_memory_profile
+    Description: Read current memory profile
+
+--- 📝 SCRATCHPAD (8 tools) ---
+
+38. scratchpad_init
+    Description: Initialize scratchpad workspace
+
+39. scratchpad_write
+    Description: Overwrite scratchpad content
+
+40. scratchpad_append
+    Description: Append to scratchpad content
+
+41. scratchpad_read
+    Description: Read scratchpad content
+    Note: Truncation if > 8000 chars
+
+42. scratchpad_validate
+    Description: Validate JSON in scratchpad
+
+43. scratchpad_edit
+    Description: Fix JSON syntax errors
+    Features: Replace/insert/delete operations
+
+44. scratchpad_commit
+    Description: Commit and clear scratchpad
+    Returns: final JSON
+
+45. scratchpad_clear
+    Description: Clear scratchpad without returning
+
+--- 🌐 WEB & SEARCH (3 tools) ---
+
+46. web_search
+    Description: DuckDuckGo web/news/image search
+    Features: Configurable results, region, safesearch
+
+47. fetch_web_content
+    Description: Extract clean text from URLs
+    Features: Removes scripts/styles/navigation
+
+48. browse_js
+    Description: Headless browser rendering
+    Engine: Playwright-based, wait for selectors
+
+--- ✅ SCHEMA VALIDATION (1 tool) ---
+
+49. validate_schema
+    Description: Validate JSON/YAML against schema
+    Returns: precise error paths
+
+--- 🧠 CODE INTELLIGENCE (2 tools) ---
+
+50. find_symbol
+    Description: Find symbol definition in codebase
+    Returns: file/line
+
+51. get_references
+    Description: Find all references to symbol
+    Features: Directory search
+
+--- 🔧 JSON REPAIR (1 tool) ---
+
+52. json_repair
+    Description: Repair malformed JSON
+    Repairs: trailing commas, unbalanced brackets, escape sequences
+
+--- 🖼️ VISION & MEDIA (5 tools) ---
+
+53. describe_image
+    AI Model Required: ⚠️ Optional
+    Notes: Blip2 (offline); Not needed if using vision-capable model
+
+54. visual_question_answering
+    AI Model Required: ✅ Yes
+    Notes: Must use vision-capable model
+
+55. read_image (OCR)
+    AI Model Required: ❌ No
+    Notes: Uses Tesseract.js (offline)
+
+56. transcribe_audio
+    Status: ~~DEPRECATED~~ (strikethrough)
+    Notes: ~~Uses whisper.cpp (offline); future: Qwen3-Omni~~
+
+57. analyze_video
+    AI Model Required: ✅ Yes
+    Notes: Must use vision-capable model
+
+--- 📖 FILE READING (3 tools) ---
+
+58. read_file
+    Description: Read files with auto-detection
+    Features: Handles UTF-8, UTF-16, ASCII, binary
+
+59. cat
+    Description: Cat-like behavior for any file
+    Features: Streaming for large files (>1MB), line range filtering
+
+60. cat_multiple
+    Description: Read multiple files simultaneously
+    Features: Concatenates content
+
+--- ⚠️ DEPRECATED TOOLS (6 tools) ---
+
+61. git_status
+    Alternative: LM Studio native Git interface
+
+62. git_diff
+    Alternative: LM Studio native Git interface
+
+63. git_log
+    Alternative: LM Studio native Git interface
+
+64. git_blame
+    Alternative: LM Studio native Git interface
+
+65. git_list_files
+    Alternative: LM Studio native Git interface
+
+66. git_read_file
+    Alternative: LM Studio native Git interface
+
+================================================================================
+🏗️ ARCHITECTURE OVERVIEW
+================================================================================
+
+--- Layer 1: Scratchpad (JSON Prevention) ---
+- Helps model build complex JSON incrementally
+- Prevents JSON syntax errors before they happen
+- Uses existing tools (write_file, cat, etc.) under the hood
+- Integrates with truncator.ts to prevent context overflow
+
+--- Layer 2: JSON Repair (Automatic) ---
+- Fixes JSON errors after they happen
+- Safety net for all tool calls
+- Repairs: trailing commas, unbalanced brackets, escape sequences
+- Transparent to the model
+
+--- Truncation Integration (Single Source of Truth) ---
+- DEFAULT_MAX_CHARS = 8000 exported from truncator.ts
+- All outputs > 8000 chars are chunked
+- Prevents context overflow causing LM Studio faults
+- All tools use the same truncation limit via wrapWithTruncation()
+
+================================================================================
+🛡️ WASM SANDBOXING (PYODIDE ONLY)
+================================================================================
+
+Language     | Execution Method     | Sandboxed?
+-------------|---------------------|------------
+Python       | Pyodide WASM        | ✅ Yes
+JavaScript   | Node.js direct      | ❌ No
+Bash         | Not supported       | ❌ Not available
+
+================================================================================
+📋 TOOL CATEGORIES SUMMARY
+================================================================================
+
+Category                  | Count
+--------------------------|------
+File Operations           | 14
+Code Execution            | 4
+Background Tasks          | 3
+Memory & State            | 14
+Scratchpad                | 8
+Web & Search              | 3
+Schema Validation         | 1
+Code Intelligence         | 2
+JSON Repair               | 1
+Vision & Media            | 5
+File Reading              | 3
+Deprecated                | 6
+--------------------------|------
+TOTAL                     | 64
+
+================================================================================
+*Generated: 2026-07-09*
+*Source: MikeyTools LM Studio Plugin (mikeystoolkit)*
+================================================================================
 ## 🛡️ Security Concerns: WASM-Based Sandboxing Currently (Pyodide Only)
 
 Security is problematic with LM Studio. Some actions such as the AI model running npm run build compiles nothing but may still output useful compiler errors sometimes and sometimes false positive compiler results. The only sandboxing I put in was for python code sandboxing but I did not do a comprehensive testing on other compilers. I know why other plugins use a directory whitelisting mechanism to safeguard against malicious code. Initiall, the goal was to use WSL2/Docker to execute any code within but that proved problematic because the tools could not path correctly. After some debugging, LM Studio does not inherit the OS system environment paths. Have not test this on Linux.
