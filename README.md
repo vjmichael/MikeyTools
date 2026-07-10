@@ -338,6 +338,7 @@ This is intentional to work with "abliterated" editions of AI models for **red t
 - Understanding the risks of unfiltered AI execution
 - running malicious code whether intentional or accidentall.
 
+Conclusion: LM Studio has created a very interesting app that allows users great flexibility for better or worse. Becareful of running unknown malicious scripts or non-trusted code.
 ---
 
 ### Tool List Reference
