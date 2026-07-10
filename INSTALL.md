@@ -112,7 +112,7 @@ npm install --legacy-peer-deps
 # Look for AI Models with the hammer symbol next to them.
 ```
 
-<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/484da405-a1ac-4594-88ef-12afcc09d740" />
+<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/484da405-a1ac-4594-88ef-12afcc09d740"/>
 
 ```
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js):
