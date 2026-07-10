@@ -27,6 +27,7 @@ Powershell Installation Command
 winget install Python.Python.3.14
 ```  
 4.  **Headless Chromium / Chrome for Testing** — Needed by browser automation capabilities
+
 Powershell Installation Command
 ```
 $chromeInstaller = "chrome_installer.exe"
