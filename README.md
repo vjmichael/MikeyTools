@@ -159,11 +159,7 @@ The following tools now return deprecation messages:
 
 **Docker/WSL could not be implemented**
 - The goal was to use Docker with WSL being the fallback. But the Docker and WSL tools cannot find the system path. LM Studio has its own internal path and does not inherit Window's system environment paths. Therefore, any tool that requires access to the OS's system environment paths were sandboxed in. Was not able to test to see if Linux is the same or different.
-
----
-
----
-
+  
 ## Installation
 
 ### Prerequisites
