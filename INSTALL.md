@@ -102,7 +102,7 @@ $env:PATH += ";$env:APPDATA\Python\Python314\Scripts"
 
 ```powershell
 # 1. Navigate to plugin directory 
-cd "c:\Users\$yourusername$\MikeyTools\lm-studio-plugin" 
+cd "c:\Users\$yourusername$\Downloads\MikeyTools\" 
 
 # 2. Install all Node.js dependencies automatically:
 npm install --legacy-peer-deps  
