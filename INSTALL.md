@@ -15,6 +15,16 @@ Before installing or running this plugin, you **must have all of the following**
 
 ---
 
+## Download from Github ##
+Click on the green code button.
+<img width="139" height="47" alt="image" src="https://github.com/user-attachments/assets/b784da9f-3ed2-4c89-9ceb-7b1aefde8d4d" />
+
+A menu will drop down. Cick on the download to download the repo.
+
+<img width="512" height="463" alt="image" src="https://github.com/user-attachments/assets/0a081470-5344-4b18-a0bd-41f93a56f470" />
+
+---
+
 ## 📦 Project Dependencies (`package.json`) 
 
 This plugin relies heavily on external TypeScript packages. **You do not need to install these manually.** By running the installation commands below, npm will automatically download and configure every necessary dependency from our project's package.json!
