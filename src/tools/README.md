@@ -95,4 +95,4 @@ lms dev --install
 ### 🔧 JSON REPAIR (1 tool)
 | Tool | File | Description |
 |------|------|-------------|
-| `json_repair` | `json_repair.ts` | Repair malformed JSON (hand-rolled strategies) |
+| `json_repair` | `json_repair.ts` | Repair simple malformed JSON (hand-rolled strategies) |
