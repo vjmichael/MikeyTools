@@ -16,8 +16,18 @@ export async function transcribeAudio(
   // Bypass sandbox check - use bundled whisper-cli.exe directly
   const bundledPath = path.resolve(__dirname, '..', 'node_modules', 'whisper-bin', 'whisper-cli.exe');
   
+  // Resolve model to actual file path
+  let modelPath: string;
+  if (model.endsWith('.bin')) {
+    // Already a path
+    modelPath = model;
+  } else {
+    // Resolve model name (base, small, medium, etc.) to actual file
+    modelPath = path.resolve(__dirname, '..', 'node_modules', 'whisper-bin', `ggml-${model}.bin`);
+  }
+  
   return new Promise((resolve) => {
-    execFile(bundledPath, [file_path, '-m', model, '-l', language], { timeout: 120000 }, (err, stdout, stderr) => {
+    execFile(bundledPath, ['-m', modelPath, '-l', language, file_path], { timeout: 120000 }, (err, stdout, stderr) => {
       if (err) {
         resolve({ success: false, error: `whisper-cli.exe failed: ${stderr || err.message}`, duration_ms: Date.now() - startTime });
       } else {
