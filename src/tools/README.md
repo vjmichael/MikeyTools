@@ -96,17 +96,3 @@ lms dev --install
 | Tool | File | Description |
 |------|------|-------------|
 | `json_repair` | `json_repair.ts` | Repair malformed JSON (hand-rolled strategies) |
-
-## 📋 Deprecated Tools
-
-### Git Operations (Deprecated 2025-07-09)
-Git operations have been deprecated due to LM Studio's sandbox security constraints. The following tools now return deprecation messages:
-
-- `git_status`
-- `git_diff`
-- `git_log`
-- `git_blame`
-- `git_list_files`
-- `git_read_file`
-
----
