@@ -37,50 +37,106 @@ powershell $chromeInstaller = "chrome_installer.exe" Invoke-WebRequest -Uri "htt
 
 ---
 
-## Features 
+## 📊 Complete Tools Inventory
 
-### 🔍 Advanced Directory Search
-- Glob pattern matching (`*.py`, `config*`, etc.)
-- Case-insensitive search
-- Filter by file extension, size, and date
-- Search within file contents (grep-style)
-- Sort by name, size, date, or type
-- Recursive or single-directory mode
+### 🔧 File Operations (14 tools)
 
-### 🌐 Web Search
-- News search
-- Image search with URLs
-- Configurable results count and region
+| # | Tool | Description | Key Features |
+|---|------|-------------|--------------|
+| 1 | `write_file` | Create/overwrite files | Dry-run mode, parent directory auto-creation |
+| 2 | `write_file_append` | Append to files | Dry-run mode, parent directory auto-creation |
+| 3 | `edit_file` | Complex file editing | Replace/insert/delete operations, dry-run diff preview |
+| 4 | `create_file` | Create files with any extension | AI determines file type, special formatting for txt/md/json/csv/html/docx/pdf |
+| 5 | `read_file` | Read any file | Auto-detects text vs binary, handles UTF-8/UTF-16/ASCII |
+| 6 | `cat` | Universal file reader | Streaming for large files, line range filtering, binary support |
+| 7 | `cat_multiple` | Read multiple files simultaneously | Concatenates content, per-file results |
+| 8 | `delete_lines_in_file` | Delete specific line ranges | 1-indexed line numbers, optional end_line |
+| 9 | `insert_at_line` | Insert content at specific line | 1-indexed line number, pushes existing content down |
+| 10 | `replace_text_in_file` | Simple find-and-replace | Exact string matching, unique old_string required |
+| 11 | `list_directory` | List files/directories | Recursive support, sorting by name/size/date, max_depth filter |
+| 12 | `search_directory` | Advanced directory search | Pattern matching, size/date/content filters, recursive mode |
+| 13 | `grep` | Regex file content search | ripgrep-based, case-insensitive, glob filtering |
+| 14 | `copy_file` | Copy files/directories | Recursive directory copy, auto-create destination |
+| 15 | `apply_patch` | Apply unified diff patches | Dry-run mode, conflict reporting, .bak backups |
+| 16 | `is_symlink` | Check if path is a symlink | Returns true/false |
+| 17 | `get_symlink_target` | Get symlink target | Returns resolved target path or null |
 
-### 📄 File Operations (NO EXTENSION RESTRICTIONS)
+### 💻 Code Execution (4 tools)
 
-**Write to ANY file** - AI model decides appropriate extensions:
-- `write_file` - Overwrite entire file
-- `write_file_append` - Append to file
-- `create_file` - Create files with any extension
+| # | Tool | Description | Sandbox |
+|---|------|-------------|---------|
+| 18 | `execute_code` | Execute Python/Node.js code | Pyodide (Python) / Node.js (JS) |
+| 19 | `run_command` | Execute terminal commands | Native shell (auto-detects OS) |
+| 20 | `check_env` | Check sandbox availability | Reports Pyodide status |
+| 21 | `run_in_sandbox` | DEPRECATED → execute_code | Redirects to execute_code |
 
-**Read ANY file** - Content-based detection (not extension-based):
-- `read_file` - Read files with auto-detection
-- `cat` - Cat-like behavior for any file
-- `cat_multiple` - Read multiple files
+### 📦 Background Tasks (3 tools)
 
-**Edit ANY file** - Flexible editing:
-- `edit_file` - Complex operations (replace/insert/delete)
-- `replace_text_in_file` - Simple find-and-replace
-- `insert_at_line` - Insert at specific line
-- `delete_lines_in_file` - Delete line ranges
+| # | Tool | Description |
+|---|------|-------------|
+| 22 | `run_background_task` | Run commands in background — returns task_id immediately |
+| 23 | `check_task_status` | Monitor background tasks — returns stdout/stderr/exit_code |
+| 24 | `stop_task` | Stop running background task — terminates task |
 
-### 🧠 JSON Repair (Layer 2)
-Automatic JSON syntax repair for malformed tool-call arguments:
-- Removes trailing commas
-- Balances brackets/braces
-- Fixes escape sequences
-- Wraps partial JSON
+### 💾 Memory & State (14 tools)
 
-### 📝 Scratchpad (Layer 1)
-### 🎯 AI Model Requirements for Vision Tools
+| # | Tool | Description |
+|---|------|-------------|
+| 25 | `memory_set` | Set key-value pair in SQLite-backed memory |
+| 26 | `memory_get` | Get value by key — returns null if absent |
+| 27 | `memory_list` | List keys with prefix filtering — LIKE match support |
+| 28 | `memory_delete` | Delete key from memory |
+| 29 | `memory_log_append` | Append timestamped text to memory log |
+| 30 | `memory_log_tail` | Get last N log entries — default: 50 |
+| 31 | `save_work` | Save work state by key |
+| 32 | `load_work` | Load saved work state |
+| 33 | `clear_work` | Clear saved work state |
+| 34 | `set_break` | Set break flag to halt approach |
+| 35 | `check_break` | Check if break flag is set (60s validity) |
+| 36 | `rebuild_memory` | Rebuild memory profile from conversations |
+| 37 | `read_memory_profile` | Read current memory profile |
 
-**Vision tools (`describe_image`, `visual_question_answering`) require an AI model with native vision support loaded in LM Studio.**
+### 📝 Scratchpad (8 tools)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 38 | `scratchpad_init` | Initialize scratchpad workspace |
+| 39 | `scratchpad_write` | Overwrite scratchpad content |
+| 40 | `scratchpad_append` | Append to scratchpad content |
+| 41 | `scratchpad_read` | Read scratchpad content — truncation if > 8000 chars |
+| 42 | `scratchpad_validate` | Validate JSON in scratchpad |
+| 43 | `scratchpad_edit` | Fix JSON syntax errors — replace/insert/delete operations |
+| 44 | `scratchpad_commit` | Commit and clear scratchpad — returns final JSON |
+| 45 | `scratchpad_clear` | Clear scratchpad without returning |
+
+### 🌐 Web & Search (3 tools)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 46 | `web_search` | DuckDuckGo web/news/image search — configurable results, region, safesearch |
+| 47 | `fetch_web_content` | Extract clean text from URLs — removes scripts/styles/navigation |
+| 48 | `browse_js` | Headless browser rendering — Playwright-based, wait for selectors |
+
+### ✅ Schema Validation (1 tool)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 49 | `validate_schema` | Validate JSON/YAML against schema — returns precise error paths |
+
+### 🧠 Code Intelligence (2 tools)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 50 | `find_symbol` | Find symbol definition in codebase — returns file/line |
+| 51 | `get_references` | Find all references to symbol — directory search |
+
+### 🔧 JSON Repair (1 tool)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 52 | `json_repair` | Repair malformed JSON — trailing commas, unbalanced brackets, escape sequences |
+
+### 🖼️ Vision & Media (5 tools)
 
 | Tool | AI Model Required? | Notes |
 |------|-------------------|-------|
@@ -100,56 +156,52 @@ https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin
 
 **Note:** The plugin is **AI-agnostic** for vision tasks — it calls whatever model is loaded in LM Studio. BLIP2 is optional or separate vision models needed.
 
+### 📖 File Reading (3 tools)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 58 | `read_file` | Read files with auto-detection — handles UTF-8, UTF-16, ASCII, binary |
+| 59 | `cat` | Cat-like behavior for any file — streaming for large files (>1MB), line range filtering |
+| 60 | `cat_multiple` | Read multiple files simultaneously — concatenates content |
+
+### ⚠️ Deprecated Tools (6 tools)
+
+| Tool | Alternative |
+|------|-------------|
+| `git_status` | LM Studio native Git interface |
+| `git_diff` | LM Studio native Git interface |
+| `git_log` | LM Studio native Git interface |
+| `git_blame` | LM Studio native Git interface |
+| `git_list_files` | LM Studio native Git interface |
+| `git_read_file` | LM Studio native Git interface |
+
 ---
 
-Incremental JSON building for complex structures:
-- `scratchpad_init` - Initialize scratchpad
-- `scratchpad_write` - Overwrite scratchpad
-- `scratchpad_append` - Append to scratchpad
-- `scratchpad_read` - Read scratchpad (with truncation)
-- `scratchpad_validate` - Validate JSON
-- `scratchpad_edit` - Fix syntax errors
-- `scratchpad_commit` - Commit and clear (with truncation)
-- `scratchpad_clear` - Clear without returning
+## 🏗️ Architecture Overview
 
-### 📖 File Reading
-- Auto-detects text vs binary based on content
-- Handles UTF-8, UTF-16, ASCII, and binary files
-- Streaming for large files (>1MB)
-- Line range filtering
+### Layer 1: Scratchpad (JSON Prevention)
+- Helps model build complex JSON incrementally
+- Prevents JSON syntax errors before they happen
+- Uses existing tools (write_file, cat, etc.) under the hood
+- Integrates with truncator.ts to prevent context overflow
 
-### 🖼️ Image Captioning & VQA
-- `describe_image` - Describe images using the **loaded AI model** (requires vision-capable model)
-- `visual_question_answering` - Answer questions about images using the **loaded AI model** (requires vision-capable model)
-- `read_image` - Extract text from images using Tesseract OCR (offline, no AI model required)
+### Layer 2: JSON Repair (Automatic)
+- Fixes JSON errors after they happen
+- Safety net for all tool calls
+- Repairs: trailing commas, unbalanced brackets, escape sequences
+- Transparent to the model
 
-### ⚠️ Note on Vision Tool Output
-**Vision tools (`describe_image`, `visual_question_answering`) return their results in the gray result box, not in the main chat.**
+### Truncation Integration (Single Source of Truth)
+- `DEFAULT_MAX_CHARS = 8000` exported from `truncator.ts`
+- All outputs > 8000 chars are chunked
+- Prevents context overflow causing LM Studio faults
+- All tools use the same truncation limit via `wrapWithTruncation()`
 
-This is a **limitation of LM Studio's plugin architecture**:
-- Toolkit tools return strings to LM Studio
-- LM Studio displays results in the gray result box (by design)
-- LM Studio does **not** provide an API to push messages to chat from plugins
-- When the LM Studio Server API is active, the server can push return strings into chat messages
-
-**Possible Workaround:** Use LM Studio's Server API
-
-### ⚠️ Deprecated: Git Tools
-**Git operations have been deprecated** (2025-07-09) due to sandbox security constraints.
-The following tools now return deprecation messages:
-- `git_status`
-- `git_diff`
-- `git_log`
-- `git_blame`
-- `git_list_files`
-- `git_read_file`
-- All GitHub tools (`github_push`, `github_create_pr`, etc.)
-
-**Alternative:** Use LM Studio's native Git interface for Git operations.
+---
 
 ### 🛡️ WASM Sandboxing (Pyodide Only)
 
-**Code execution in isolated WASM environments — no Docker/WSL required!**
+**Code execution in isolated WASM environments**
 
 | Tool | Description | Sandbox |
 |------|-------------|---------|
@@ -167,6 +219,26 @@ The following tools now return deprecation messages:
 
 **Docker/WSL could not be implemented**
 - The goal was to use Docker with WSL being the fallback. But the Docker and WSL tools cannot find the system path. LM Studio has its own internal path and does not inherit Window's system environment paths. Therefore, any tool that requires access to the OS's system environment paths were sandboxed in. Was not able to test to see if Linux is the same or different.
+
+---
+
+## 📋 Tool Categories Summary
+
+| Category | Count |
+|----------|-------|
+| File Operations | 14 |
+| Code Execution | 4 |
+| Background Tasks | 3 |
+| Memory & State | 14 |
+| Scratchpad | 8 |
+| Web & Search | 3 |
+| Schema Validation | 1 |
+| Code Intelligence | 2 |
+| JSON Repair | 1 |
+| Vision & Media | 5 |
+| File Reading | 3 |
+| Deprecated | 6 |
+| **TOTAL** | **64** |
 
 ---
 
@@ -371,189 +443,5 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
 - running malicious code whether intentional or accidentall.
 
 ---
-## 📊 Complete Tools Inventory
-
-### 🔧 File Operations (14 tools)
-
-| # | Tool | Description | Key Features |
-|---|------|-------------|--------------|
-| 1 | `write_file` | Create/overwrite files | Dry-run mode, parent directory auto-creation |
-| 2 | `write_file_append` | Append to files | Dry-run mode, parent directory auto-creation |
-| 3 | `edit_file` | Complex file editing | Replace/insert/delete operations, dry-run diff preview |
-| 4 | `create_file` | Create files with any extension | AI determines file type, special formatting for txt/md/json/csv/html/docx/pdf |
-| 5 | `read_file` | Read any file | Auto-detects text vs binary, handles UTF-8/UTF-16/ASCII |
-| 6 | `cat` | Universal file reader | Streaming for large files, line range filtering, binary support |
-| 7 | `cat_multiple` | Read multiple files simultaneously | Concatenates content, per-file results |
-| 8 | `delete_lines_in_file` | Delete specific line ranges | 1-indexed line numbers, optional end_line |
-| 9 | `insert_at_line` | Insert content at specific line | 1-indexed line number, pushes existing content down |
-| 10 | `replace_text_in_file` | Simple find-and-replace | Exact string matching, unique old_string required |
-| 11 | `list_directory` | List files/directories | Recursive support, sorting by name/size/date, max_depth filter |
-| 12 | `search_directory` | Advanced directory search | Pattern matching, size/date/content filters, recursive mode |
-| 13 | `grep` | Regex file content search | ripgrep-based, case-insensitive, glob filtering |
-| 14 | `copy_file` | Copy files/directories | Recursive directory copy, auto-create destination |
-| 15 | `apply_patch` | Apply unified diff patches | Dry-run mode, conflict reporting, .bak backups |
-| 16 | `is_symlink` | Check if path is a symlink | Returns true/false |
-| 17 | `get_symlink_target` | Get symlink target | Returns resolved target path or null |
-
-### 💻 Code Execution (4 tools)
-
-| # | Tool | Description | Sandbox |
-|---|------|-------------|---------|
-| 18 | `execute_code` | Execute Python/Node.js code | Pyodide (Python) / Node.js (JS) |
-| 19 | `run_command` | Execute terminal commands | Native shell (auto-detects OS) |
-| 20 | `check_env` | Check sandbox availability | Reports Pyodide status |
-| 21 | `run_in_sandbox` | DEPRECATED → execute_code | Redirects to execute_code |
-
-### 📦 Background Tasks (3 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 22 | `run_background_task` | Run commands in background — returns task_id immediately |
-| 23 | `check_task_status` | Monitor background tasks — returns stdout/stderr/exit_code |
-| 24 | `stop_task` | Stop running background task — terminates task |
-
-### 💾 Memory & State (14 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 25 | `memory_set` | Set key-value pair in SQLite-backed memory |
-| 26 | `memory_get` | Get value by key — returns null if absent |
-| 27 | `memory_list` | List keys with prefix filtering — LIKE match support |
-| 28 | `memory_delete` | Delete key from memory |
-| 29 | `memory_log_append` | Append timestamped text to memory log |
-| 30 | `memory_log_tail` | Get last N log entries — default: 50 |
-| 31 | `save_work` | Save work state by key |
-| 32 | `load_work` | Load saved work state |
-| 33 | `clear_work` | Clear saved work state |
-| 34 | `set_break` | Set break flag to halt approach |
-| 35 | `check_break` | Check if break flag is set (60s validity) |
-| 36 | `rebuild_memory` | Rebuild memory profile from conversations |
-| 37 | `read_memory_profile` | Read current memory profile |
-
-### 📝 Scratchpad (8 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 38 | `scratchpad_init` | Initialize scratchpad workspace |
-| 39 | `scratchpad_write` | Overwrite scratchpad content |
-| 40 | `scratchpad_append` | Append to scratchpad content |
-| 41 | `scratchpad_read` | Read scratchpad content — truncation if > 8000 chars |
-| 42 | `scratchpad_validate` | Validate JSON in scratchpad |
-| 43 | `scratchpad_edit` | Fix JSON syntax errors — replace/insert/delete operations |
-| 44 | `scratchpad_commit` | Commit and clear scratchpad — returns final JSON |
-| 45 | `scratchpad_clear` | Clear scratchpad without returning |
-
-### 🌐 Web & Search (3 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 46 | `web_search` | DuckDuckGo web/news/image search — configurable results, region, safesearch |
-| 47 | `fetch_web_content` | Extract clean text from URLs — removes scripts/styles/navigation |
-| 48 | `browse_js` | Headless browser rendering — Playwright-based, wait for selectors |
-
-### ✅ Schema Validation (1 tool)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 49 | `validate_schema` | Validate JSON/YAML against schema — returns precise error paths |
-
-### 🧠 Code Intelligence (2 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 50 | `find_symbol` | Find symbol definition in codebase — returns file/line |
-| 51 | `get_references` | Find all references to symbol — directory search |
-
-### 🔧 JSON Repair (1 tool)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 52 | `json_repair` | Repair malformed JSON — trailing commas, unbalanced brackets, escape sequences |
-
-### 🖼️ Vision & Media (5 tools)
-
-| # | Tool | AI Model Required? | Notes |
-|---|------|-------------------|-------|
-| 53 | `describe_image` | ⚠️ Optional | Blip2 (offline); Not needed if using vision-capable model |
-| 54 | `visual_question_answering` | ✅ Yes | Must use vision-capable model |
-| 55 | `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline) |
-| 56 | `transcribe_audio` | ~~DEPRECATED~~ | ~~Uses whisper.cpp (offline); future: Qwen3-Omni~~ |
-| 57 | `analyze_video` | ✅ Yes | Must use vision-capable model |
-
-### 📖 File Reading (3 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 58 | `read_file` | Read files with auto-detection — handles UTF-8, UTF-16, ASCII, binary |
-| 59 | `cat` | Cat-like behavior for any file — streaming for large files (>1MB), line range filtering |
-| 60 | `cat_multiple` | Read multiple files simultaneously — concatenates content |
-
-### ⚠️ Deprecated Tools (6 tools)
-
-| Tool | Alternative |
-|------|-------------|
-| `git_status` | LM Studio native Git interface |
-| `git_diff` | LM Studio native Git interface |
-| `git_log` | LM Studio native Git interface |
-| `git_blame` | LM Studio native Git interface |
-| `git_list_files` | LM Studio native Git interface |
-| `git_read_file` | LM Studio native Git interface |
-
----
-
-## 🏗️ Architecture Overview
-
-### Layer 1: Scratchpad (JSON Prevention)
-- Helps model build complex JSON incrementally
-- Prevents JSON syntax errors before they happen
-- Uses existing tools (write_file, cat, etc.) under the hood
-- Integrates with truncator.ts to prevent context overflow
-
-### Layer 2: JSON Repair (Automatic)
-- Fixes JSON errors after they happen
-- Safety net for all tool calls
-- Repairs: trailing commas, unbalanced brackets, escape sequences
-- Transparent to the model
-
-### Truncation Integration (Single Source of Truth)
-- `DEFAULT_MAX_CHARS = 8000` exported from `truncator.ts`
-- All outputs > 8000 chars are chunked
-- Prevents context overflow causing LM Studio faults
-- All tools use the same truncation limit via `wrapWithTruncation()`
-
----
-
-## 🛡️ WASM Sandboxing (Pyodide Only)
-
-| Language | Execution Method | Sandboxed? |
-|----------|-----------------|------------|
-| Python | Pyodide WASM | ✅ Yes |
-| JavaScript | Node.js direct | ❌ No |
-| Bash | Not supported | ❌ Not available |
-
----
-
-## 📋 Tool Categories Summary
-
-| Category | Count |
-|----------|-------|
-| File Operations | 14 |
-| Code Execution | 4 |
-| Background Tasks | 3 |
-| Memory & State | 14 |
-| Scratchpad | 8 |
-| Web & Search | 3 |
-| Schema Validation | 1 |
-| Code Intelligence | 2 |
-| JSON Repair | 1 |
-| Vision & Media | 5 |
-| File Reading | 3 |
-| Deprecated | 6 |
-| **TOTAL** | **64** |
-
----
-
-*Generated: 2026-07-09*
-*Source: MikeyTools LM Studio Plugin (mikeystoolkit)*
 
 *Last Updated: 2026-07-10*
