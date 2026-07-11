@@ -403,9 +403,9 @@ There are GUI interfaces for AI models that uses **MCP (Model Context Protocol)*
 1. Some GUI interfaces like Jan will not have a MCP.json to edit. They wil have a GUI to enter in information.
 
 ```
-Name: Name of the Plugin
+Name: mikeystool
 Command: node
-Arguments: ://filepath to the plugin's MCP entry point
+Arguments: filepath://mikeystool/dist/mcp-server.js
 ```
 
 The MCP entry point is mcp-server.ts. Normally, it would be index.ts. But I had to go with a different approach. index.js is the entry point for LM Studio SDK toolProvider which installs the plugin using lms dev --install. mcp-server.js is the entry point of MCP server.
