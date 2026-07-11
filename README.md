@@ -1,5 +1,7 @@
 # Mike's Multi-Tool Kit (mikeystoolkit) - LM Studio Plugin
 
+### Disclaimer: All these tools with exception to the Git tools work on LM Studio. Using another GUI like Jan may prevent some tools from functioning.
+
 A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence.
 
 ## License
