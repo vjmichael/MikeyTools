@@ -39,6 +39,10 @@ powershell $chromeInstaller = "chrome_installer.exe" Invoke-WebRequest -Uri "htt
 
 ---
 
+# MikeyTools LM Studio Plugin — Complete Tools List
+
+---
+
 ## 📊 Complete Tools Inventory
 
 ### 🔧 File Operations (14 tools)
@@ -136,27 +140,8 @@ powershell $chromeInstaller = "chrome_installer.exe" Invoke-WebRequest -Uri "htt
 
 | # | Tool | Description |
 |---|------|-------------|
-| 52 | `json_repair` | Repair simple malformed JSON — trailing commas, unbalanced brackets, escape sequences |
+| 52 | `json_repair` | Repair malformed JSON — trailing commas, unbalanced brackets, escape sequences |
 
-### 🖼️ Vision & Media (5 tools)
-
-| Tool | AI Model Required? | Notes |
-|------|-------------------|-------|
-| `describe_image` | ⚠️ Optional | Blip2 (offline;bundled with @xenova/transformers); Not needed if using a vision-capable model (e.g., Qwen3.6-35B-A3B) |
-| `visual_question_answering` | ✅ Yes | Must use a vision-capable model |
-| `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline, no AI model) |
-| transcribe_audio` | ⚠️ Optional | Uses whisper.cpp (offline); future: Qwen3-Omni |
-| `analyze_video` | ✅ Yes | Must use a vision-capable model |
-
-Note on whisper. ggml_base.bin is required which might be a separate download.
-- rename the whisper folder as whisper-bin. Download the ggml-base.bin into the whisper-bin folder. COPY and do not move the folder into the nodes-module folder. For some reason, running npm run build may delete the whisper-bin folder.
-
-Direct Download from Hugging Face
-```
-https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin
-```
-
-**Note:** The plugin is **AI-agnostic** for vision tasks — it calls whatever model is loaded in LM Studio. BLIP2 is optional or separate vision models needed.
 
 ### 📖 File Reading (3 tools)
 
@@ -168,7 +153,7 @@ https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin
 
 ---
 
-## 🏗️ JSON Truncation and Chucking Architecture Overview
+## 🏗️ Architecture Overview
 
 ### Layer 1: Scratchpad (JSON Prevention)
 - Helps model build complex JSON incrementally
@@ -190,26 +175,13 @@ https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin
 
 ---
 
-### 🛡️ WASM Sandboxing (Pyodide Only)
+## 🛡️ WASM Sandboxing (Pyodide Only)
 
-**Code execution in isolated WASM environments**
-
-| Tool | Description | Sandbox |
-|------|-------------|---------|
-| `execute_code` | Execute code in Python, Bash, or Node.js | Pyodide (Python) / Node.js (JS) |
-| `check_env` | Check WASM sandbox availability | Reports Pyodide status |
-
-**Pyodide WASM:**
-- Python execution in isolated WASM
-- Full Python standard library
-- Scientific packages (numpy, pandas) available
-
-**JavaScript Execution:**
-- Uses Node.js directly (not sandboxed)
-- QuickJS WASM was deprecated and removed (2026-07-09)
-
-**Docker/WSL could not be implemented**
-- The goal was to use Docker with WSL being the fallback. But the Docker and WSL tools cannot find the system path. LM Studio has its own internal path and does not inherit Window's system environment paths. Therefore, any tool that requires access to the OS's system environment paths were sandboxed in. Was not able to test to see if Linux is the same or different.
+| Language | Execution Method | Sandboxed? |
+|----------|-----------------|------------|
+| Python | Pyodide WASM | ✅ Yes |
+| JavaScript | Node.js direct | ❌ No |
+| Bash | Not supported | ❌ Not available |
 
 ---
 
@@ -227,8 +199,12 @@ https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin
 | Code Intelligence | 2 |
 | JSON Repair | 1 |
 | Vision & Media | 5 |
-| File Reading | 3 |
-| **TOTAL** | **58** |
+
+
+---
+
+
+*Source: MikeyTools LM Studio Plugin (mikeystoolkit)*
 
 ---
 
