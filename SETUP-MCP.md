@@ -55,24 +55,25 @@ The MCP server is TypeScript. You must compile it to `dist/mcp-server.js` before
 
 ## Client Configurations
 
-### Jan (jan.ai)
+### AI with MCP server support
 
-**Config file:** `~/.jan/mcp_config.json`
+**Config file:** `~/.path/to/mcp_config.json`
+- Be sure you have the right filepath to the folder. File paths below are examples.
 
 ```json
 {
   "mikeystoolkit": {
     "command": "node",
-    "args": ["C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"],
+    "args": ["C:\\path\\to\\mikeystoolkit\\dist\\mcp-server.js"],
     "env": {}
   }
 }
 ```
 
-**Windows path:** `C:\Users\UserMN4312\.jan\mcp_config.json`  
-**Mac/Linux path:** `~/.jan/mcp_config.json`
+**Windows path:** `~/.path/to/mcp_config.json`  
+**Mac/Linux path:** `~/pathto/mcp_config.json`
 
-Restart Jan after adding the config.
+Restart Ai Modle if need after adding the config.
 
 ---
 
@@ -85,7 +86,7 @@ Restart Jan after adding the config.
   "mcpServers": {
     "mikeystoolkit": {
       "command": "node",
-      "args": ["C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"]
+      "args": ["C:\\path\\to\\mikeystoolkit\\dist\\mcp-server.js"]
     }
   }
 }
@@ -102,7 +103,7 @@ Restart Jan after adding the config.
 {
   "mikeystoolkit": {
     "command": "node",
-    "args": ["C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"],
+    "args": ["C:\\path\\to\\mikeystoolkit\\dist\\mcp-server.js"],
     "env": {}
   }
 }
@@ -119,7 +120,7 @@ Restart Jan after adding the config.
   "mcpServers": {
     "mikeystoolkit": {
       "command": "node",
-      "args": ["C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"]
+      "args": ["C:\\path\\to\\mikeystoolkit\\dist\\mcp-server.js"]
     }
   }
 }
@@ -136,7 +137,7 @@ Configure via the Cline extension settings UI:
 3. Click **Add MCP Server**
 4. Enter:
    - **Command:** `node`
-   - **Arguments:** `C:\Users\UserMN4312\toolkit\lm-studio-plugin\dist\mcp-server.js`
+   - **Arguments:** `C:\\path\\to\\mikeystoolkit\\dist\\mcp-server.js`
 
 ---
 
