@@ -443,5 +443,3 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
 - running malicious code whether intentional or accidentall.
 
 ---
-
-*Last Updated: 2026-07-10*
