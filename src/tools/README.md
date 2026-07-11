@@ -115,7 +115,7 @@
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ Truncating and Chunking Architecture Overview
 
 ### Layer 1: Scratchpad (JSON Prevention)
 - Helps model build complex JSON incrementally
