@@ -13,7 +13,7 @@ All tools are automatically registered in the LM Studio plugin. No manual setup 
 lms dev --install
 ```
 
-## 📊 Tool Inventory (64 Active Tools)
+## 📊 Tool Inventory (58 Active Tools)
 
 ### 🔧 FILE OPERATIONS (14 tools)
 | Tool | File | Description |
