@@ -1,98 +1,180 @@
-# LM Studio Plugin Toolkit — Tools Reference
+# MikeyTools LM Studio Plugin — Complete Tools List
 
-## 📁 Overview
 
-This directory contains all active tools for the universal-toolkit LM Studio plugin. Tools are organized by category and provide file operations, code execution, memory management, web search, and more.
 
-## 🚀 Quick Start
+---
 
-All tools are automatically registered in the LM Studio plugin. No manual setup required.
+## 📊 Complete Tools Inventory
 
-```bash
-# Install from development directory
-lms dev --install
-```
+### 🔧 File Operations (14 tools)
 
-## 📊 Tool Inventory (58 Active Tools)
+| # | Tool | Description | Key Features |
+|---|------|-------------|--------------|
+| 1 | `write_file` | Create/overwrite files | Dry-run mode, parent directory auto-creation |
+| 2 | `write_file_append` | Append to files | Dry-run mode, parent directory auto-creation |
+| 3 | `edit_file` | Complex file editing | Replace/insert/delete operations, dry-run diff preview |
+| 4 | `create_file` | Create files with any extension | AI determines file type, special formatting for txt/md/json/csv/html/docx/pdf |
+| 5 | `read_file` | Read any file | Auto-detects text vs binary, handles UTF-8/UTF-16/ASCII |
+| 6 | `cat` | Universal file reader | Streaming for large files, line range filtering, binary support |
+| 7 | `cat_multiple` | Read multiple files simultaneously | Concatenates content, per-file results |
+| 8 | `delete_lines_in_file` | Delete specific line ranges | 1-indexed line numbers, optional end_line |
+| 9 | `insert_at_line` | Insert content at specific line | 1-indexed line number, pushes existing content down |
+| 10 | `replace_text_in_file` | Simple find-and-replace | Exact string matching, unique old_string required |
+| 11 | `list_directory` | List files/directories | Recursive support, sorting by name/size/date, max_depth filter |
+| 12 | `search_directory` | Advanced directory search | Pattern matching, size/date/content filters, recursive mode |
+| 13 | `grep` | Regex file content search | ripgrep-based, case-insensitive, glob filtering |
+| 14 | `copy_file` | Copy files/directories | Recursive directory copy, auto-create destination |
+| 15 | `apply_patch` | Apply unified diff patches | Dry-run mode, conflict reporting, .bak backups |
+| 16 | `is_symlink` | Check if path is a symlink | Returns true/false |
+| 17 | `get_symlink_target` | Get symlink target | Returns resolved target path or null |
 
-### 🔧 FILE OPERATIONS (14 tools)
-| Tool | File | Description |
-|------|------|-------------|
-| `read_file` | `read_file.ts` | Read text/code files with encoding detection |
-| `write_file` | `write_file.ts` | Create/overwrite files with dry-run support |
-| `edit_file` | `edit_file.ts` | Apply patch operations (replace/insert/delete) |
-| `create_file` | `fileops.ts` | Create files. AI determines appropriate file type. Special formats (txt, md, json, csv, html, docx, pdf) get formatted; others written as-is |
-| `cat` | `fileops.ts` | Universal file reader (text, binary, documents) |
-| `cat_multiple` | `fileops.ts` | Read multiple files simultaneously |
-| `delete_lines_in_file` | `edit_file.ts` | Delete specific line ranges |
-| `insert_at_line` | `edit_file.ts` | Insert content at specific line |
-| `replace_text_in_file` | `edit_file.ts` | String replacement in files |
-| `list_directory` | `list_directory.ts` | List files with recursive support |
-| `search_directory` | `fileops.ts` | Advanced directory search by pattern/size/date |
-| `grep` | `grep.ts` | Regex file content search using ripgrep |
-| `copy_file` | `copy_file.ts` | Copy files/directories |
-| `apply_patch` | `patch.ts` | Apply unified diff patches with conflict reporting |
+### 💻 Code Execution (4 tools)
 
-### 💻 CODE EXECUTION (4 tools)
-| Tool | File | Description |
-|------|------|-------------|
-| `execute_code` | `exec.ts` | Execute Python/Node.js code in WASM sandbox |
-| `run_command` | `terminal.ts` | Execute terminal commands |
-| `check_env` | `exec.ts` | Check host environment (QuickJS/Pyodide availability) |
+| # | Tool | Description | Sandbox |
+|---|------|-------------|---------|
+| 18 | `execute_code` | Execute Python/Node.js code | Pyodide (Python) / Node.js (JS) |
+| 19 | `run_command` | Execute terminal commands | Native shell (auto-detects OS) |
+| 20 | `check_env` | Check sandbox availability | Reports Pyodide status |
+| 21 | `run_in_sandbox` | DEPRECATED → execute_code | Redirects to execute_code |
 
-### 📦 BACKGROUND TASKS (3 tools)
-| Tool | File | Description |
-|------|------|-------------|
-| `run_background_task` | `background.ts` | Run commands in background |
-| `check_task_status` | `background.ts` | Monitor background tasks |
-| `stop_task` | `background.ts` | Stop running background tasks |
+### 📦 Background Tasks (3 tools)
 
-### 💾 MEMORY & STATE (12 tools)
-| Tool | File | Description |
-|------|------|-------------|
-| `memory_set` | `memory.ts` | Set key-value pair in SQLite-backed memory |
-| `memory_get` | `memory.ts` | Get value by key |
-| `memory_list` | `memory.ts` | List keys with prefix filtering |
-| `memory_delete` | `memory.ts` | Delete key from memory |
-| `memory_log_append` | `memory.ts` | Append timestamped text to memory log |
-| `memory_log_tail` | `memory.ts` | Get last N log entries |
-| `save_work` | `task_state.ts` | Save work state by key |
-| `load_work` | `task_state.ts` | Load saved work state |
-| `clear_work` | `task_state.ts` | Clear saved work state |
-| `set_break` | `task_state.ts` | Set break flag |
-| `check_break` | `task_state.ts` | Check break flag |
+| # | Tool | Description |
+|---|------|-------------|
+| 22 | `run_background_task` | Run commands in background — returns task_id immediately |
+| 23 | `check_task_status` | Monitor background tasks — returns stdout/stderr/exit_code |
+| 24 | `stop_task` | Stop running background task — terminates task |
 
-### 📝 SCRATCHPAD (8 tools)
-| Tool | File | Description |
-|------|------|-------------|
-| `scratchpad_init` | `scratchpad.ts` | Initialize scratchpad workspace |
-| `scratchpad_write` | `scratchpad.ts` | Overwrite scratchpad content |
-| `scratchpad_append` | `scratchpad.ts` | Append to scratchpad content |
-| `scratchpad_read` | `scratchpad.ts` | Read scratchpad content |
-| `scratchpad_validate` | `scratchpad.ts` | Validate JSON in scratchpad |
-| `scratchpad_edit` | `scratchpad.ts` | Fix JSON syntax errors |
-| `scratchpad_commit` | `scratchpad.ts` | Commit and clear scratchpad |
-| `scratchpad_clear` | `scratchpad.ts` | Clear scratchpad without returning |
+### 💾 Memory & State (14 tools)
 
-### 🌐 WEB & SEARCH (3 tools)
-| Tool | File | Description |
-|------|------|-------------|
-| `web_search` | `websearch.ts` | DuckDuckGo web/news/image search |
-| `fetch_web_content` | `websearch.ts` | Extract clean text from URLs |
-| `browse_js` | `browser.ts` | Headless browser rendering (Playwright) |
+| # | Tool | Description |
+|---|------|-------------|
+| 25 | `memory_set` | Set key-value pair in SQLite-backed memory |
+| 26 | `memory_get` | Get value by key — returns null if absent |
+| 27 | `memory_list` | List keys with prefix filtering — LIKE match support |
+| 28 | `memory_delete` | Delete key from memory |
+| 29 | `memory_log_append` | Append timestamped text to memory log |
+| 30 | `memory_log_tail` | Get last N log entries — default: 50 |
+| 31 | `save_work` | Save work state by key |
+| 32 | `load_work` | Load saved work state |
+| 33 | `clear_work` | Clear saved work state |
+| 34 | `set_break` | Set break flag to halt approach |
+| 35 | `check_break` | Check if break flag is set (60s validity) |
+| 36 | `rebuild_memory` | Rebuild memory profile from conversations |
+| 37 | `read_memory_profile` | Read current memory profile |
 
-### ✅ SCHEMA VALIDATION (1 tool)
-| Tool | File | Description |
-|------|------|-------------|
-| `validate_schema` | `validate.ts` | Validate JSON/YAML against schema (with auto-repair) |
+### 📝 Scratchpad (8 tools)
 
-### 🧠 CODE INTELLIGENCE (2 tools)
-| Tool | File | Description |
-|------|------|-------------|
-| `find_symbol` | `code_intel.ts` | Find symbol definition in codebase |
-| `get_references` | `code_intel.ts` | Find all references to symbol |
+| # | Tool | Description |
+|---|------|-------------|
+| 38 | `scratchpad_init` | Initialize scratchpad workspace |
+| 39 | `scratchpad_write` | Overwrite scratchpad content |
+| 40 | `scratchpad_append` | Append to scratchpad content |
+| 41 | `scratchpad_read` | Read scratchpad content — truncation if > 8000 chars |
+| 42 | `scratchpad_validate` | Validate JSON in scratchpad |
+| 43 | `scratchpad_edit` | Fix JSON syntax errors — replace/insert/delete operations |
+| 44 | `scratchpad_commit` | Commit and clear scratchpad — returns final JSON |
+| 45 | `scratchpad_clear` | Clear scratchpad without returning |
 
-### 🔧 JSON REPAIR (1 tool)
-| Tool | File | Description |
-|------|------|-------------|
-| `json_repair` | `json_repair.ts` | Repair simple malformed JSON (hand-rolled strategies) |
+### 🌐 Web & Search (3 tools)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 46 | `web_search` | DuckDuckGo web/news/image search — configurable results, region, safesearch |
+| 47 | `fetch_web_content` | Extract clean text from URLs — removes scripts/styles/navigation |
+| 48 | `browse_js` | Headless browser rendering — Playwright-based, wait for selectors |
+
+### ✅ Schema Validation (1 tool)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 49 | `validate_schema` | Validate JSON/YAML against schema — returns precise error paths |
+
+### 🧠 Code Intelligence (2 tools)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 50 | `find_symbol` | Find symbol definition in codebase — returns file/line |
+| 51 | `get_references` | Find all references to symbol — directory search |
+
+### 🔧 JSON Repair (1 tool)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 52 | `json_repair` | Repair malformed JSON — trailing commas, unbalanced brackets, escape sequences |
+
+
+
+### 📖 File Reading (3 tools)
+
+| # | Tool | Description |
+|---|------|-------------|
+| 58 | `read_file` | Read files with auto-detection — handles UTF-8, UTF-16, ASCII, binary |
+| 59 | `cat` | Cat-like behavior for any file — streaming for large files (>1MB), line range filtering |
+| 60 | `cat_multiple` | Read multiple files simultaneously — concatenates content |
+
+### ⚠️ Deprecated Tools (6 tools)
+
+| Tool | Alternative |
+|------|-------------|
+| `git_status` | LM Studio native Git interface |
+| `git_diff` | LM Studio native Git interface |
+| `git_log` | LM Studio native Git interface |
+| `git_blame` | LM Studio native Git interface |
+| `git_list_files` | LM Studio native Git interface |
+| `git_read_file` | LM Studio native Git interface |
+
+---
+
+## 🏗️ Architecture Overview
+
+### Layer 1: Scratchpad (JSON Prevention)
+- Helps model build complex JSON incrementally
+- Prevents JSON syntax errors before they happen
+- Uses existing tools (write_file, cat, etc.) under the hood
+- Integrates with truncator.ts to prevent context overflow
+
+### Layer 2: JSON Repair (Automatic)
+- Fixes JSON errors after they happen
+- Safety net for all tool calls
+- Repairs: trailing commas, unbalanced brackets, escape sequences
+- Transparent to the model
+
+### Truncation Integration (Single Source of Truth)
+- `DEFAULT_MAX_CHARS = 8000` exported from `truncator.ts`
+- All outputs > 8000 chars are chunked
+- Prevents context overflow causing LM Studio faults
+- All tools use the same truncation limit via `wrapWithTruncation()`
+
+---
+
+## 🛡️ WASM Sandboxing (Pyodide Only)
+
+| Language | Execution Method | Sandboxed? |
+|----------|-----------------|------------|
+| Python | Pyodide WASM | ✅ Yes |
+| JavaScript | Node.js direct | ❌ No |
+| Bash | Not supported | ❌ Not available |
+
+---
+
+## 📋 Tool Categories Summary
+
+| Category | Count |
+|----------|-------|
+| File Operations | 14 |
+| Code Execution | 4 |
+| Background Tasks | 3 |
+| Memory & State | 14 |
+| Scratchpad | 8 |
+| Web & Search | 3 |
+| Schema Validation | 1 |
+| Code Intelligence | 2 |
+| JSON Repair | 1 |
+| Vision & Media | 5 |
+
+
+---
+
+
+*Source: MikeyTools LM Studio Plugin (mikeystoolkit)*
