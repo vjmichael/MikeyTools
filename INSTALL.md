@@ -179,20 +179,6 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 | `describe_image` | Image captioning using loaded AI model (Qwen2.5-VL) | Qwen2.5-VL-3B loaded in LM Studio |
 | `visual_question_answering` | Answer questions about an image using loaded AI model | Qwen2.5-VL-3B loaded in LM Studio |
 
-### ⚠️ Deprecated: Git Tools (2025-07-09)
-
-**The following tools have been deprecated** due to sandbox security constraints:
-
-| Tool | Status | Alternative |
-|------|--------|-------------|
-| `git_status` | ❌ Deprecated | LM Studio native Git interface |
-| `git_diff` | ❌ Deprecated | LM Studio native Git interface |
-| `git_log` | ❌ Deprecated | LM Studio native Git interface |
-| `git_blame` | ❌ Deprecated | LM Studio native Git interface |
-| `git_list_files` | ❌ Deprecated | LM Studio native Git interface |
-| `git_read_file` | ❌ Deprecated | LM Studio native Git interface |
-| All GitHub tools | ❌ Deprecated | LM Studio native GitHub interface |
-
 **To restore git tools in the future:**
 1. Restore from `backup/system-path-tools/`
 2. Update sandbox permissions to allow system pathing
