@@ -134,7 +134,7 @@ powershell $chromeInstaller = "chrome_installer.exe" Invoke-WebRequest -Uri "htt
 
 | # | Tool | Description |
 |---|------|-------------|
-| 52 | `json_repair` | Repair malformed JSON — trailing commas, unbalanced brackets, escape sequences |
+| 52 | `json_repair` | Repair simple malformed JSON — trailing commas, unbalanced brackets, escape sequences |
 
 ### 🖼️ Vision & Media (5 tools)
 
@@ -177,7 +177,7 @@ https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ JSON Truncation and Chucking Architecture Overview
 
 ### Layer 1: Scratchpad (JSON Prevention)
 - Helps model build complex JSON incrementally
