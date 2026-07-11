@@ -33,10 +33,12 @@ Remove-Item -Path $chromeInstaller
 5.  **Vision-Capable AI Model** — Required for `describe_image`, `visual_question_answering`, `analyze_video` (see [AI Model Requirements](#-ai-model-requirements-for-vision-tools))
 
 6.  Download esbuild to run npm run build.
+With the addition of MCP server capabilities, running npm run build will cause tsc to have a OOM error.
 
-'''
+Installing esbuild in Powershell
+```powershell
 npm install esbuild
-'''
+```
 
  
 
