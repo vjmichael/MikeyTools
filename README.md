@@ -84,8 +84,10 @@ Automatic JSON syntax repair for simple malformed tool-call arguments:
 | `describe_image` | ⚠️ Optional | Blip2 (offline;bundled with @xenova/transformers); Not needed if using a vision-capable model (e.g., Qwen3.6-35B-A3B) |
 | `visual_question_answering` | ✅ Yes | Must use a vision-capable model |
 | `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline, no AI model) |
-| ~~transcribe_audio`~~ | ~~⚠️ Optional~~ | ~~Uses whisper.cpp (offline); future: Qwen3-Omni~~ |
+| transcribe_audio` | ⚠️ Optional | Uses whisper.cpp (offline); future: Qwen3-Omni |
 | `analyze_video` | ✅ Yes | Must use a vision-capable model |
+
+Note on whisper. You need to gglm_base.bin in the whipser folder to make the transcribe_audio tool work. Again, results are outputted in the result and not text. Ask the AI Modle to report what the results were and the AI model should proper parse out the JSON and put what was transcribbed ito the chat.
 
 **Recommended Models:**
 - **Qwen3.6-35B-A3B** — Best balance of quality and VRAM (~18GB)
