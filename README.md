@@ -13,7 +13,7 @@ Before running or installing this plugin in modern LM Studio, you **must have al
 ### Core Runtime Requirements
 1.  **PowerShell 7+ (*Windows ONLY*)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest)
 
-Alternative install. Press the Windows Key ⊞ + X. Select Powershell. 
+Alternative install. Press the Windows Key ⊞ + X. Select Powershell. Run the command below.
 ```powershell
 winget search --id Microsoft.PowerShell --exact
 ```
@@ -22,9 +22,13 @@ winget search --id Microsoft.PowerShell --exact
 
 ### Feature-Specific Dependencies
 3.  **Python Latest Version** ([Download](https://www.python.org/downloads/)) — Required by OCR, semantic search, and schema validation
+
 ```powershell winget install Python.Python.3.14 ```
+
 4.  **Headless Chromium / Chrome for Testing** — Needed by browser automation capabilities
+
 ```powershell $chromeInstaller = "chrome_installer.exe" Invoke-WebRequest -Uri "https://dl.google.com/chrome/install/latest/chrome_installer.exe" -OutFile $chromeInstaller Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -NoNewWindow -Wait Remove-Item -Path $chromeInstaller ```
+
 5.  **Vision-Capable AI Model** — Required for `describe_image`, `visual_question_answering`, `analyze_video` (see [AI Model Requirements](#-ai-model-requirements-for-vision-tools))
 
 ---
