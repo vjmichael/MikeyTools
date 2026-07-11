@@ -7,7 +7,7 @@
     "mikeystoolkit": {
       "command": "node",
       "args": [
-        "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+        "C:\\Users\\YourUserName\\toolkit\\dist\\mcp-server.js"
       ],
       "env": {}
     }
@@ -19,7 +19,7 @@
       "mikeystoolkit": {
         "command": "node",
         "args": [
-          "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+          "C:\\Users\\YourUserName\\toolkit\\dist\\mcp-server.js"
         ]
       }
     }
@@ -30,7 +30,7 @@
     "mikeystoolkit": {
       "command": "node",
       "args": [
-        "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+        "C:\\Users\\YourUserName\\toolkit\\dist\\mcp-server.js"
       ],
       "env": {}
     }
@@ -42,7 +42,7 @@
       "mikeystoolkit": {
         "command": "node",
         "args": [
-          "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+          "C:\\Users\\YourUserName\\toolkit\\dist\\mcp-server.js"
         ]
       }
     }
@@ -54,7 +54,7 @@
       "mikeystoolkit": {
         "command": "node",
         "args": [
-          "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+          "C:\\Users\\YourUserName\\toolkit\\dist\\mcp-server.js"
         ],
         "env": {}
       }
