@@ -74,11 +74,16 @@ Automatic JSON syntax repair for malformed tool-call arguments:
 | `describe_image` | ⚠️ Optional | Blip2 (offline;bundled with @xenova/transformers); Not needed if using a vision-capable model (e.g., Qwen3.6-35B-A3B) |
 | `visual_question_answering` | ✅ Yes | Must use a vision-capable model |
 | `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline, no AI model) |
-| ~~`transcribe_audio`~~ | ~~⚠️ Optional~~ | ~~Uses whisper.cpp (offline); future: Qwen3-Omni~~ |
+| transcribe_audio` | ⚠️ Optional | Uses whisper.cpp (offline); future: Qwen3-Omni |
 | `analyze_video` | ✅ Yes | Must use a vision-capable model |
 
-**Recommended Models:**
-- **Qwen3.6-35B-A3B** — Best balance of quality and VRAM (~18GB)
+Note on whisper. ggml_base.bin is required which might be a separate download.
+- rename the whisper folder as whisper-bin. Download the ggml-base.bin into the whisper-bin folder. COPY and do not move the folder into the nodes-module folder. For some reason, running npm run build deletes the whisper-bin folder.
+
+Direct Download from Hugging Face
+```
+https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin
+```
 
 **Note:** The plugin is **AI-agnostic** for vision tasks — it calls whatever model is loaded in LM Studio. BLIP2 is optional or separate vision models needed.
 
