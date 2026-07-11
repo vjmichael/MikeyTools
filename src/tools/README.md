@@ -113,17 +113,6 @@
 | 59 | `cat` | Cat-like behavior for any file — streaming for large files (>1MB), line range filtering |
 | 60 | `cat_multiple` | Read multiple files simultaneously — concatenates content |
 
-### ⚠️ Deprecated Tools (6 tools)
-
-| Tool | Alternative |
-|------|-------------|
-| `git_status` | LM Studio native Git interface |
-| `git_diff` | LM Studio native Git interface |
-| `git_log` | LM Studio native Git interface |
-| `git_blame` | LM Studio native Git interface |
-| `git_list_files` | LM Studio native Git interface |
-| `git_read_file` | LM Studio native Git interface |
-
 ---
 
 ## 🏗️ Architecture Overview
