@@ -227,7 +227,7 @@ npm --version    # Should be 9.0.0 or higher
 ### Setup (Windows PowerShell 7+)
 ```powershell
 # Navigate to plugin directory
-cd "C:\Users\UserMN4312\toolkit\lm-studio-plugin"
+cd "filepath://mikeystool/"
 
 # Install dependencies automatically
 npm install --legacy-peer-deps
@@ -350,7 +350,7 @@ read_image({file_path: "C:/path/to/image.jpg", ocr_only: true})
 
 ## Security Notes
 
-### ⚠️ Critical Security Reality
+### ⚠️ Critical Security Reality in LM Studio
 
 **LM Studio does NOT provide directory whitelisting sandboxing.**
 
@@ -380,10 +380,11 @@ This is intentional to work with "abliterated" editions of AI models for **red t
 - Isolation from the host filesystem
 - Any security boundaries beyond WASM sandboxing
 
-## 📥 Installing This Plugin in Modern LM Studio
+## 📥 Installing This Plugin as a MCP server
 
-Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! Here's how to connect this toolset properly:
+There are GUI interfaces for AI models that uses **MCP (Model Context Protocol)** via JSON configuration instead of GUI plugin loading buttons! Here's how to connect this toolset properly:
 
+### First Method for installing MCP
 1. Open your `mcp.json` config file from the **"Program"** tab → click "Install" → select "Edit mcp.json". This opens an in-app editor for LM Studio's MCP server definitions
 2. Add a new entry under `"mcpServers"` pointing to our compiled plugin script (`dist/index.js`) like this:
 
@@ -392,11 +393,23 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
   "mcpServers": {
     "lm-studio-plugin": {
       "command": "/path/to/node",
-      "args": ["C:/Users/UserMN4312/toolkit/lm-studio-plugin/dist/index.js"]
+      "args": ["filepath://mikeystool/dist/index.js"]
     }
   }
 }
 ```
+
+### Second Method for installing MCP
+1. Some GUI interfaces like Jan will not have a MCP.json to edit. They wil have a GUI to enter in information.
+
+```
+Name: Name of the Plugin
+Command: node
+Arguments: ://filepath to the plugin's MCP entry point
+```
+
+The MCP entry point is mcp-server.ts. Normally, it would be index.ts. But I had to go with a different approach. index.js is the entry point for LM Studio SDK toolProvider which installs the plugin using lms dev --install. mcp-server.js is the entry point of MCP server.
+
 
 > ⚠️ **Windows Users:** Replace `/path/to/node` with your actual Node executable path (e.g., `C:\Program Files\nodejs\node.exe`)!
 
