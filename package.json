@@ -3,17 +3,24 @@
   "version": "2.3.0",
   "description": "Mike's Multi-Tool Kit for LM Studio - File operations, web search, content fetching, code execution, patching, persistent memory, semantic search, schema validation, OCR, audio, vision, git, sandbox, and code intelligence",
   "main": "dist/index.js",
+  "exports": {
+    "./plugin": "./dist/index.js",
+    "./mcp": "./dist/mcp-server.js"
+  },
   "scripts": {
     "build": "tsc",
+    "build:mcp": "node scripts/build-mcp.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@xenova/transformers": "^2.17.0",
     "ajv": "^8.17.1",
     "cheerio": "^1.1.0",
     "csv-stringify": "^6.5.2",
     "docx": "^9.3.0",
+    "esbuild": "^0.28.1",
     "fs-extra": "^11.3.0",
     "googleapis": "^144.0.0",
     "js-yaml": "^4.1.0",

@@ -1,0 +1,63 @@
+{
+  "_comment": "MCP server configuration examples for mikeystoolkit",
+  "_instructions": "Copy the relevant block into your MCP client's config file. Replace the path with your actual installation path.",
+
+  "jan": {
+    "_description": "Jan (jan.ai) - config at ~/.jan/mcp_config.json",
+    "mikeystoolkit": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+      ],
+      "env": {}
+    }
+  },
+
+  "cursor": {
+    "_description": "Cursor - config at ~/.cursor/mcp.json",
+    "mcpServers": {
+      "mikeystoolkit": {
+        "command": "node",
+        "args": [
+          "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+        ]
+      }
+    }
+  },
+
+  "claude_desktop": {
+    "_description": "Claude Desktop - config at ~/Library/Application Support/Claude/claude_desktop_config.json (mac) or %APPDATA%\\Claude\\claude_desktop_config.json (win)",
+    "mikeystoolkit": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+      ],
+      "env": {}
+    }
+  },
+
+  "windsurf": {
+    "_description": "Windsurf - config at ~/.windsurf/mcp.json",
+    "mcpServers": {
+      "mikeystoolkit": {
+        "command": "node",
+        "args": [
+          "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+        ]
+      }
+    }
+  },
+
+  "cline": {
+    "_description": "Cline (VS Code extension) - configure via extension settings UI",
+    "mcpServers": {
+      "mikeystoolkit": {
+        "command": "node",
+        "args": [
+          "C:\\Users\\UserMN4312\\toolkit\\lm-studio-plugin\\dist\\mcp-server.js"
+        ],
+        "env": {}
+      }
+    }
+  }
+}

@@ -15,16 +15,6 @@ Before installing or running this plugin, you **must have all of the following**
 
 ---
 
-## Download from Github ##
-Click on the green code button.
-<img width="139" height="47" alt="image" src="https://github.com/user-attachments/assets/b784da9f-3ed2-4c89-9ceb-7b1aefde8d4d" />
-
-A menu will drop down. Cick on the download to download the repo.
-
-<img width="512" height="463" alt="image" src="https://github.com/user-attachments/assets/0a081470-5344-4b18-a0bd-41f93a56f470" />
-
----
-
 ## 📦 Project Dependencies (`package.json`) 
 
 This plugin relies heavily on external TypeScript packages. **You do not need to install these manually.** By running the installation commands below, npm will automatically download and configure every necessary dependency from our project's package.json!
@@ -85,7 +75,7 @@ Add these to your Windows Environment PATH (System or User variables):
 
 ```powershell
 # Add whisper-bin
-[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Users\$yourusername$\MikeyTools\nodes-module\whisper\whisper-bin", "User")
+[Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\Users\UserMN4312\toolkit\lm-studio-plugin\whisper-bin", "User")
 
 # Add ffmpeg
 [Environment]::SetEnvironmentVariable("PATH", "$env:PATH;C:\ffmpeg\bin", "User")
@@ -102,19 +92,14 @@ $env:PATH += ";$env:APPDATA\Python\Python314\Scripts"
 
 ```powershell
 # 1. Navigate to plugin directory 
-cd "c:\Users\$yourusername$\Downloads\MikeyTools\" 
+cd "c:\Users\UserMN4312\toolkit/lm-studio-plugin" 
 
 # 2. Install all Node.js dependencies automatically:
 npm install --legacy-peer-deps  
 
-# 3. Load an AI model with tool support in LM Studio (for describe_image, analyze_video):
-# Open LM Studio → Discover tab → Search for any AI model with tools support → Download
-# Look for AI Models with the hammer symbol next to them.
-```
+# 3. Load Qwen2.5-VL model in LM Studio (for describe_image, analyze_video):
+# Open LM Studio → Discover tab → Search "Qwen2.5-VL-3B" → Download
 
-<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/85cfe929-6462-4fce-a3fc-239bc8b0c1ab" size="50%"/>
-
-```
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js):
 npm run build
 
@@ -132,16 +117,13 @@ dir dist
 
 ```bash  
 # 1. Navigate to plugin directory on your machine: 
-cd /path/to/MikeyTools
+cd /path/to/toolkit/lm-studio-plugin 
 
 # 2. Install all Node.js dependencies automatically from package.json:
 npm install --legacy-peer-deps  
 
-# 3. Load a tool enabled AI model in LM Studio (for describe_image, analyze_video):
-# Open LM Studio → Discover tab → Search for an AI model that has the hammer symbol → Download
-
-<img width="1945" height="1390" alt="image" src="https://github.com/user-attachments/assets/87a1886e-ab39-4419-a9d7-0c88766c2acd" />
-
+# 3. Load Qwen2.5-VL model in LM Studio (for describe_image, analyze_video):
+# Open LM Studio → Discover tab → Search "Qwen2.5-VL-3B" → Download
 
 # 4. Build TypeScript into a format LM Studio can read (dist/index.js): 
 npm run build
@@ -164,7 +146,7 @@ Modern versions of LM Studio use **MCP (Model Context Protocol)** via JSON confi
   "mcpServers": {    
     "lm-studio-plugin": {      
       "command": "/path/to/node",  # or full path on Windows! e.g., C:\Program Files\nodejs\node.exe       
-      "args": ["C:/Users/$yourusername$/MikeyTools/dist/index.js"]
+      "args": ["C:/Users/UserMN4312/toolkit/lm-studio-plugin/dist/index.js"]
     }  
   } 
 }
@@ -185,230 +167,64 @@ pip install sentence-transformers numpy jsonschema pyyaml Pillow pytesseract bea
 
 ## Available Tools 
 
-# MikeyTools LM Studio Plugin — Complete Tools List
+| Tool | Description | Dependencies Required |
+|------|-------------|------------------------|  
+| `web_search` / `fetch_web_content` | Search web/news/images via DuckDuckGo + fetch URLs | None (built-in) |  
+| `create_file` / `read_file` | Create/read txt/md/json/csv/html/docx/pdf files | Node.js runtime only |
+| `search_directory` | Advanced file/folder search with filters | None (built-in) 
+| `execute_code` | Execute Python/Bash/Node code in **WASM sandbox** (QuickJS for JS, Pyodide for Python) | WASM sandbox (built-in) |
+| `memory_set/get/list/delete/log_append/tail` | Persistent sql.js-backed key-value store & log management | Pure JS — no extra deps needed!  
+| `index_build/query/update` | Semantic search indexing over directories using sentence transformers | Python + numpy/sentence-transformers installed via pip above 
+| `validate_schema` / `read_image` (OCR) | JSON/YAML validation against schemas and Tesseract-based image text extraction | Pillow, pytesseract, jsonschema packages from pip list above!
+| `describe_image` | Image captioning using loaded AI model (Qwen2.5-VL) | Qwen2.5-VL-3B loaded in LM Studio |
+| `visual_question_answering` | Answer questions about an image using loaded AI model | Qwen2.5-VL-3B loaded in LM Studio |
 
-**Total Active Tools:** 64 | **Total Deprecated:** 6
+### ⚠️ Deprecated: Git Tools (2025-07-09)
 
----
+**The following tools have been deprecated** due to sandbox security constraints:
 
-## 📊 Complete Tools Inventory
+| Tool | Status | Alternative |
+|------|--------|-------------|
+| `git_status` | ❌ Deprecated | LM Studio native Git interface |
+| `git_diff` | ❌ Deprecated | LM Studio native Git interface |
+| `git_log` | ❌ Deprecated | LM Studio native Git interface |
+| `git_blame` | ❌ Deprecated | LM Studio native Git interface |
+| `git_list_files` | ❌ Deprecated | LM Studio native Git interface |
+| `git_read_file` | ❌ Deprecated | LM Studio native Git interface |
+| All GitHub tools | ❌ Deprecated | LM Studio native GitHub interface |
 
-### 🔧 File Operations (14 tools)
-
-| # | Tool | Description | Key Features |
-|---|------|-------------|--------------|
-| 1 | `write_file` | Create/overwrite files | Dry-run mode, parent directory auto-creation |
-| 2 | `write_file_append` | Append to files | Dry-run mode, parent directory auto-creation |
-| 3 | `edit_file` | Complex file editing | Replace/insert/delete operations, dry-run diff preview |
-| 4 | `create_file` | Create files with any extension | AI determines file type, special formatting for txt/md/json/csv/html/docx/pdf |
-| 5 | `read_file` | Read any file | Auto-detects text vs binary, handles UTF-8/UTF-16/ASCII |
-| 6 | `cat` | Universal file reader | Streaming for large files, line range filtering, binary support |
-| 7 | `cat_multiple` | Read multiple files simultaneously | Concatenates content, per-file results |
-| 8 | `delete_lines_in_file` | Delete specific line ranges | 1-indexed line numbers, optional end_line |
-| 9 | `insert_at_line` | Insert content at specific line | 1-indexed line number, pushes existing content down |
-| 10 | `replace_text_in_file` | Simple find-and-replace | Exact string matching, unique old_string required |
-| 11 | `list_directory` | List files/directories | Recursive support, sorting by name/size/date, max_depth filter |
-| 12 | `search_directory` | Advanced directory search | Pattern matching, size/date/content filters, recursive mode |
-| 13 | `grep` | Regex file content search | ripgrep-based, case-insensitive, glob filtering |
-| 14 | `copy_file` | Copy files/directories | Recursive directory copy, auto-create destination |
-| 15 | `apply_patch` | Apply unified diff patches | Dry-run mode, conflict reporting, .bak backups |
-| 16 | `is_symlink` | Check if path is a symlink | Returns true/false |
-| 17 | `get_symlink_target` | Get symlink target | Returns resolved target path or null |
-
-### 💻 Code Execution (4 tools)
-
-| # | Tool | Description | Sandbox |
-|---|------|-------------|---------|
-| 18 | `execute_code` | Execute Python/Node.js code | Pyodide (Python) / Node.js (JS) |
-| 19 | `run_command` | Execute terminal commands | Native shell (auto-detects OS) |
-| 20 | `check_env` | Check sandbox availability | Reports Pyodide status |
-| 21 | `run_in_sandbox` | DEPRECATED → execute_code | Redirects to execute_code |
-
-### 📦 Background Tasks (3 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 22 | `run_background_task` | Run commands in background — returns task_id immediately |
-| 23 | `check_task_status` | Monitor background tasks — returns stdout/stderr/exit_code |
-| 24 | `stop_task` | Stop running background task — terminates task |
-
-### 💾 Memory & State (14 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 25 | `memory_set` | Set key-value pair in SQLite-backed memory |
-| 26 | `memory_get` | Get value by key — returns null if absent |
-| 27 | `memory_list` | List keys with prefix filtering — LIKE match support |
-| 28 | `memory_delete` | Delete key from memory |
-| 29 | `memory_log_append` | Append timestamped text to memory log |
-| 30 | `memory_log_tail` | Get last N log entries — default: 50 |
-| 31 | `save_work` | Save work state by key |
-| 32 | `load_work` | Load saved work state |
-| 33 | `clear_work` | Clear saved work state |
-| 34 | `set_break` | Set break flag to halt approach |
-| 35 | `check_break` | Check if break flag is set (60s validity) |
-| 36 | `rebuild_memory` | Rebuild memory profile from conversations |
-| 37 | `read_memory_profile` | Read current memory profile |
-
-### 📝 Scratchpad (8 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 38 | `scratchpad_init` | Initialize scratchpad workspace |
-| 39 | `scratchpad_write` | Overwrite scratchpad content |
-| 40 | `scratchpad_append` | Append to scratchpad content |
-| 41 | `scratchpad_read` | Read scratchpad content — truncation if > 8000 chars |
-| 42 | `scratchpad_validate` | Validate JSON in scratchpad |
-| 43 | `scratchpad_edit` | Fix JSON syntax errors — replace/insert/delete operations |
-| 44 | `scratchpad_commit` | Commit and clear scratchpad — returns final JSON |
-| 45 | `scratchpad_clear` | Clear scratchpad without returning |
-
-### 🌐 Web & Search (3 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 46 | `web_search` | DuckDuckGo web/news/image search — configurable results, region, safesearch |
-| 47 | `fetch_web_content` | Extract clean text from URLs — removes scripts/styles/navigation |
-| 48 | `browse_js` | Headless browser rendering — Playwright-based, wait for selectors |
-
-### ✅ Schema Validation (1 tool)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 49 | `validate_schema` | Validate JSON/YAML against schema — returns precise error paths |
-
-### 🧠 Code Intelligence (2 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 50 | `find_symbol` | Find symbol definition in codebase — returns file/line |
-| 51 | `get_references` | Find all references to symbol — directory search |
-
-### 🔧 JSON Repair (1 tool)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 52 | `json_repair` | Repair malformed JSON — trailing commas, unbalanced brackets, escape sequences |
-
-### 🖼️ Vision & Media (5 tools)
-
-| # | Tool | AI Model Required? | Notes |
-|---|------|-------------------|-------|
-| 53 | `describe_image` | ⚠️ Optional | Blip2 (offline); Not needed if using vision-capable model |
-| 54 | `visual_question_answering` | ✅ Yes | Must use vision-capable model |
-| 55 | `read_image` (OCR) | ❌ No | Uses Tesseract.js (offline) |
-| 56 | `transcribe_audio` | ~~DEPRECATED~~ | ~~Uses whisper.cpp (offline); future: Qwen3-Omni~~ |
-| 57 | `analyze_video` | ✅ Yes | Must use vision-capable model |
-
-### 📖 File Reading (3 tools)
-
-| # | Tool | Description |
-|---|------|-------------|
-| 58 | `read_file` | Read files with auto-detection — handles UTF-8, UTF-16, ASCII, binary |
-| 59 | `cat` | Cat-like behavior for any file — streaming for large files (>1MB), line range filtering |
-| 60 | `cat_multiple` | Read multiple files simultaneously — concatenates content |
-
-### ⚠️ Deprecated Tools (6 tools)
-
-| Tool | Alternative |
-|------|-------------|
-| `git_status` | LM Studio native Git interface |
-| `git_diff` | LM Studio native Git interface |
-| `git_log` | LM Studio native Git interface |
-| `git_blame` | LM Studio native Git interface |
-| `git_list_files` | LM Studio native Git interface |
-| `git_read_file` | LM Studio native Git interface |
+**To restore git tools in the future:**
+1. Restore from `backup/system-path-tools/`
+2. Update sandbox permissions to allow system pathing
+3. Re-enable tools in `tools-order.ts`
 
 ---
 
-## 🏗️ Architecture Overview
+## 🛡️ Security Model: WASM-Based Sandboxing (Pyodide Only)
 
-### Layer 1: Scratchpad (JSON Prevention)
-- Helps model build complex JSON incrementally
-- Prevents JSON syntax errors before they happen
-- Uses existing tools (write_file, cat, etc.) under the hood
-- Integrates with truncator.ts to prevent context overflow
-
-### Layer 2: JSON Repair (Automatic)
-- Fixes JSON errors after they happen
-- Safety net for all tool calls
-- Repairs: trailing commas, unbalanced brackets, escape sequences
-- Transparent to the model
-
-### Truncation Integration (Single Source of Truth)
-- `DEFAULT_MAX_CHARS = 8000` exported from `truncator.ts`
-- All outputs > 8000 chars are chunked
-- Prevents context overflow causing LM Studio faults
-- All tools use the same truncation limit via `wrapWithTruncation()`
-
----
-
-## 🛡️ WASM Sandboxing (Pyodide Only)
-
-| Language | Execution Method | Sandboxed? |
-|----------|-----------------|------------|
-| Python | Pyodide WASM | ✅ Yes |
-| JavaScript | Node.js direct | ❌ No |
-| Bash | Not supported | ❌ Not available |
-
----
-
-## 📋 Tool Categories Summary
-
-| Category | Count |
-|----------|-------|
-| File Operations | 14 |
-| Code Execution | 4 |
-| Background Tasks | 3 |
-| Memory & State | 14 |
-| Scratchpad | 8 |
-| Web & Search | 3 |
-| Schema Validation | 1 |
-| Code Intelligence | 2 |
-| JSON Repair | 1 |
-| Vision & Media | 5 |
-| File Reading | 3 |
-| Deprecated | 6 |
-| **TOTAL** | **64** |
-
----
-
-*Generated: 2026-07-09*
-*Source: MikeyTools LM Studio Plugin (mikeystoolkit)*
-
-
-## 🛡️ Security Concerns: WASM-Based Sandboxing Currently (Pyodide Only)
-
-Security is problematic with LM Studio. Some actions such as the AI model running npm run build compiles nothing but may still output useful compiler errors sometimes and sometimes false positive compiler results. The only sandboxing I put in was for python code sandboxing but I did not do a comprehensive testing on other compilers. I know why other plugins use a directory whitelisting mechanism to safeguard against malicious code. Initiall, the goal was to use WSL2/Docker to execute any code within but that proved problematic because the tools could not path correctly. After some debugging, LM Studio does not inherit the OS system environment paths. Have not test this on Linux.
-
-This plugin uses **Pyodide WebAssembly (WASM) sandboxing** for code execution:
+This plugin uses **WebAssembly (WASM) sandboxing** for code execution:
 
 - **JavaScript**: Node.js direct execution (not sandboxed)
 - **Python**: `pyodide` (CPython compiled to WASM)
 - **Bash**: Not supported in sandboxed mode (requires real OS shell)
-- Require additional compilers to test other programming languages and scripts.
+
+**QuickJS WASM was deprecated and removed (2026-07-09):**
+- ❌ Browser-first design (not compatible with LM Studio's Node.js environment)
+- ❌ Intentionally restricts Node.js APIs for security
+- ❌ WASM loading issues in non-browser environments
+- ❌ Filesystem access restrictions break sandbox functionality
+- ❌ Limited Node.js compatibility (explicitly stated by library authors)
 
 **Pyodide WASM:**
 - Python execution in isolated WASM environment
 - Full Python standard library
 - Scientific packages (numpy, pandas) available
 
-**@sebastianwessel/quickJS WASM was deprecated and removed (2026-07-09):**
-- ❌ Browser-first design (not compatible with LM Studio's Node.js environment)
-- ❌ Intentionally restricts Node.js APIs for security
-- ❌ WASM loading issues in non-browser environments
-- ❌ LFilesystem access is not sandbox
-- ❌ Limited Node.js compatibility (explicitly stated by library authors)
-
-**Isolated-VM does not support odd numbered versions of Node.**
-- ❌ LM Studio bundles Node 25.5.0 (odd-numbered, unstable/development track)
-
-**vm2 and Node's built-in vm were immediately reject from the start.**
-- ❌ vm2 has documented history of sandbox-escape CVEs.
-- ❌ Node's built-in vm module has no security boundary at all. Code can escape to real Node process
-
-**WSL2/Docker Sandboxed out**
-- ❌ LM Studio has its own internal system paths and does not inherit Window's system envrionmental paths.
+**Benefits:**
+- ✅ No Docker/WSL2 required
+- ✅ Default-deny security (no network/filesystem access by default)
+- ✅ Configurable timeouts and memory limits
+- ✅ Works inside LM Studio's plugin sandbox
 
 ---
 
