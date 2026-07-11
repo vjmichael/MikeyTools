@@ -13,7 +13,10 @@ Before running or installing this plugin in modern LM Studio, you **must have al
 ### Core Runtime Requirements
 1.  **PowerShell 7+ (*Windows ONLY*)** — Install from [GitHub](https://github.com/PowerShell/PowerShell/releases/latest)
 
-```Alternative install. Press the Windows Key ⊞ + X. Select Powershell. winget search --id Microsoft.PowerShell --exact ```
+Alternative install. Press the Windows Key ⊞ + X. Select Powershell. 
+```powershell
+winget search --id Microsoft.PowerShell --exact
+```
 
 2.  **Node.js v18+** ([Download](https://nodejs.org/)) — Runtime environment for TypeScript compilation and npm packages!
 
