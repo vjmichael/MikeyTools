@@ -78,7 +78,7 @@ Automatic JSON syntax repair for malformed tool-call arguments:
 | `analyze_video` | ✅ Yes | Must use a vision-capable model |
 
 Note on whisper. ggml_base.bin is required which might be a separate download.
-- rename the whisper folder as whisper-bin. Download the ggml-base.bin into the whisper-bin folder. COPY and do not move the folder into the nodes-module folder. For some reason, running npm run build deletes the whisper-bin folder.
+- rename the whisper folder as whisper-bin. Download the ggml-base.bin into the whisper-bin folder. COPY and do not move the folder into the nodes-module folder. For some reason, running npm run build may delete the whisper-bin folder.
 
 Direct Download from Hugging Face
 ```
