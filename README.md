@@ -4,6 +4,8 @@
 
 A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence.
 
+- Built using LM Studio with Qwen3.6-35B-A3B utilzing the AMD AI PRO R9700.
+
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
