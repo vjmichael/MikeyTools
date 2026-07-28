@@ -2,7 +2,7 @@
 
 ### Disclaimer: All these tools with exception to the Git tools work on LM Studio. Using another GUI like Jan may prevent some tools from functioning.
 
-A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence.
+A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence. As of right now, the video tools do not work reliably and will provide basic and generic information. I had personally decided to no longer work on the video tools as multi-modal AI becomes increasingly available. The video tools were designed for AI models with no native visual and video support.
 
 - Built using LM Studio with Qwen3.6-35B-A3B utilzing the AMD AI PRO R9700.
 
@@ -421,6 +421,6 @@ The MCP entry point is mcp-server.ts. Normally, it would be index.ts. But I had 
 - Restricting access to sensitive files
 - Running AI models in controlled environments
 - Understanding the risks of unfiltered AI execution
-- running malicious code whether intentional or accidentall.
+- running malicious code whether intentional or accidental.
 
 ---
