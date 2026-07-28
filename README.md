@@ -3,7 +3,7 @@
 ### Disclaimer: All these tools with exception to the Git tools work on LM Studio. Using another GUI like Jan may prevent some tools from functioning.
 
 A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence. 
-- As of right now, the video tools do not work reliably and will provide basic and generic information. I had personally decided to no longer work on the video tools as multi-modal AI becomes increasingly available. The video tools were designed for AI models with no native visual and video support.
+- As of right now, the video tools do not work reliably and will provide basic and generic information. I had personally decided to no longer work on the video tools as multi-modal AI models becomes increasingly available. The video tools were designed for AI models with no native visual and video support i.e. older AI models.
 - The sandboxing works with python so it is very limiting.
 - Built using LM Studio with Qwen3.6-35B-A3B utilzing the AMD AI PRO R9700.
 
