@@ -1,5 +1,7 @@
 # Mike's Multi-Tool Kit (mikeystoolkit) - LM Studio Plugin
 
+### Update 11/23/2026: I stopped working on this a around the middle of 2026. LM Studio's sandbox made it hard to create certain tools especially the media tools like video analyzer and audio analyzer. I was not able to create any sandboxes for code execution. Everything else works okay. These tools are sufficient to get a local AI GUI to run with what anyone would need to be productive. I have moved on to trying to make my own AI GUI ecosystem - tools befitting of what I want to make.
+
 ### Disclaimer: All these tools with exception to the Git tools work on LM Studio. Using another GUI like Jan may prevent some tools from functioning.
 
 A comprehensive TypeScript plugin for LM Studio that provides advanced file operations, web search, content fetching, code execution, persistent memory, schema validation, and code intelligence. 
